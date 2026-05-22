@@ -2,3 +2,5 @@ interface:
   display_name: "Verify"
   short_description: "Check completion claims against concrete evidence"
   default_prompt: "Use $verify to determine whether this work is actually complete."
+policy:
+  allow_implicit_invocation: true

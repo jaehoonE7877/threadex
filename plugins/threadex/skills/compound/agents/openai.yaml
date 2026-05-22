@@ -2,3 +2,5 @@ interface:
   display_name: "Compound"
   short_description: "Capture reusable learnings from Codex runs"
   default_prompt: "Use $compound to preserve the useful learnings from this run."
+policy:
+  allow_implicit_invocation: true

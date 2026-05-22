@@ -2,3 +2,5 @@ interface:
   display_name: "Specify"
   short_description: "Draft verifiable requirements before implementation"
   default_prompt: "Use $specify to turn this clarified request into requirements.md."
+policy:
+  allow_implicit_invocation: true
