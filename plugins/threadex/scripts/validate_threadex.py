@@ -15,7 +15,6 @@ REQUIRED_AGENTS = [
     "code-explorer",
     "docs-researcher",
     "gap-auditor",
-    "worker",
     "verifier",
     "code-reviewer",
 ]

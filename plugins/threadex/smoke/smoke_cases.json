@@ -57,10 +57,6 @@
       "spawn_smoke": "Pass a short Q&A log and expect CONTINUE or SUFFICIENT."
     },
     {
-      "name": "worker",
-      "spawn_smoke": "Delegate a tiny file-scoped implementation and expect changed files plus verification."
-    },
-    {
       "name": "verifier",
       "spawn_smoke": "Ask to verify a concrete claim and expect PASS/FAIL/BLOCKED evidence."
     },
