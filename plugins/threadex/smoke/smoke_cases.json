@@ -46,23 +46,23 @@
   "subagents": [
     {
       "name": "code-explorer",
-      "spawn_smoke": "Ask for a read-only search of relevant files and expect no edits."
+      "spawn_smoke": "Ask for a read-only search of relevant files and expect no edits; adapter should use a read-only sandbox."
     },
     {
       "name": "docs-researcher",
-      "spawn_smoke": "Ask for README/AGENTS/docs references and expect file:line evidence."
+      "spawn_smoke": "Ask for README/AGENTS/docs references and expect file:line evidence; adapter should use a read-only sandbox."
     },
     {
       "name": "gap-auditor",
-      "spawn_smoke": "Pass a short Q&A log and expect CONTINUE or SUFFICIENT."
+      "spawn_smoke": "Pass a short Q&A log and expect CONTINUE or SUFFICIENT; adapter should use a read-only sandbox."
     },
     {
       "name": "verifier",
-      "spawn_smoke": "Ask to verify a concrete claim and expect PASS/FAIL/BLOCKED evidence."
+      "spawn_smoke": "Ask to verify a concrete claim and expect PASS/FAIL/BLOCKED evidence; adapter should use a read-only sandbox."
     },
     {
       "name": "code-reviewer",
-      "spawn_smoke": "Ask to review a diff and expect severity-ordered findings."
+      "spawn_smoke": "Ask to review a diff and expect severity-ordered findings; adapter should use a read-only sandbox."
     }
   ],
   "routing": [

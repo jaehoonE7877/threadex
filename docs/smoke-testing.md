@@ -32,6 +32,9 @@ Spawn verifier to audit whether the previous result is complete. It must return 
 Spawn code-reviewer to review the current diff. It must lead with findings and not rewrite code.
 ```
 
+Static validation also checks that every Threadex adapter is configured with a
+read-only sandbox and the intended model for its task class.
+
 If custom adapter names from `plugins/threadex/codex/agents/*.toml` are not available in the current Codex runtime, spawn the closest native role and pass the relevant adapter contract as task context. Record that as a runtime limitation, not a plugin success.
 
 Evidence from repository checks proves that the contracts and routing prompts exist. It does not prove Codex runtime registration. Runtime registration is proven only after installing Threadex, restarting Codex, starting a fresh thread, and observing the skill/subagent behavior there.

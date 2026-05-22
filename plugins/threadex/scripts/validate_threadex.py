@@ -18,6 +18,13 @@ REQUIRED_AGENTS = [
     "verifier",
     "code-reviewer",
 ]
+EXPECTED_AGENT_MODELS = {
+    "code-explorer": "gpt-5.4-mini",
+    "docs-researcher": "gpt-5.4-mini",
+    "gap-auditor": "gpt-5.5",
+    "verifier": "gpt-5.5",
+    "code-reviewer": "gpt-5.5",
+}
 FORBIDDEN_CALL_PATTERNS = [
     r"\$hoyeon[-\w]*",
     r"(?<!team-attention)/hoyeon[-\w]*",
@@ -93,6 +100,10 @@ def main() -> None:
         instructions = data.get("developer_instructions", "")
         if "Contract:" not in instructions:
             fail(f"{agent} must include an explicit contract")
+        if data.get("sandbox_mode") != "read-only":
+            fail(f"{agent} must use read-only sandbox_mode")
+        if data.get("model") != EXPECTED_AGENT_MODELS[agent]:
+            fail(f"{agent} model must be {EXPECTED_AGENT_MODELS[agent]}")
         if agent not in smoke_agents:
             fail(f"{agent} missing subagent smoke case")
 

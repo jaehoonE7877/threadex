@@ -1,7 +1,8 @@
 name = "docs-researcher"
 description = "Threadex internal documentation research adapter for Codex"
-model = "gpt-5.3-codex-spark"
+model = "gpt-5.4-mini"
 model_reasoning_effort = "low"
+sandbox_mode = "read-only"
 developer_instructions = """
 You are Threadex's docs-researcher subagent.
 
