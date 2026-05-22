@@ -119,6 +119,20 @@ def main() -> None:
         fail("goal-draft skill must enforce the 4000 character limit")
     if "does not implement or replace `/goal`" not in goal_text:
         fail("goal-draft must state that /goal is a built-in Codex feature")
+    for required in [
+        "Six-Slot Contract",
+        "Domain Routing",
+        "Clarifying Questions",
+        "Drafting Rules",
+        "references/domain_defaults.md",
+        "references/slot_checklist.md",
+        "references/style_overlay.md",
+    ]:
+        if required not in goal_text:
+            fail(f"goal-draft is missing draft-codex-goal contract: {required}")
+    for ref_name in ["domain_defaults.md", "slot_checklist.md", "style_overlay.md"]:
+        if not (root / "skills" / "goal-draft" / "references" / ref_name).exists():
+            fail(f"goal-draft missing reference file: {ref_name}")
 
     print("Threadex validation passed")
 

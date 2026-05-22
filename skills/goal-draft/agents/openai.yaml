@@ -1,4 +1,4 @@
 interface:
   display_name: "Goal Draft"
-  short_description: "Draft compact prompts for Codex's built-in /goal"
+  short_description: "Draft evidence-checked Codex /goal prompts"
   default_prompt: "Use $goal-draft to turn these requirements into a Codex /goal prompt under 4000 characters."
