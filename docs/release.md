@@ -23,7 +23,7 @@ The working tree should be clean after commit and push.
 Codex supports Git-backed marketplace sources:
 
 ```bash
-codex plugin marketplace add jaehoonE7877/threadex --ref main
+codex plugin marketplace add jaehoonE7877/threadex --ref main --sparse .agents/plugins
 codex plugin marketplace upgrade threadex
 ```
 

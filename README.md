@@ -39,7 +39,7 @@ Current Codex plugin docs describe `skills`, `apps`, `MCP servers`, and `hooks` 
 ## Install
 
 ```bash
-codex plugin marketplace add jaehoonE7877/threadex --ref main
+codex plugin marketplace add jaehoonE7877/threadex --ref main --sparse .agents/plugins
 ```
 
 Then restart Codex, open the plugin directory, install Threadex, and start a new thread.
