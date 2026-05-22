@@ -1,6 +1,6 @@
 {
   "name": "threadex",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Lightweight requirement-to-goal harness for Codex",
   "author": {
     "name": "jaehoonE7877",
@@ -35,6 +35,8 @@
       "Use Threadex to write requirements before Codex starts implementation.",
       "Use Threadex to verify whether this agent result is actually complete."
     ],
-    "brandColor": "#10A37F"
+    "brandColor": "#6C5CFF",
+    "composerIcon": "./assets/threadex-icon.png",
+    "logo": "./assets/threadex-logo.png"
   }
 }
