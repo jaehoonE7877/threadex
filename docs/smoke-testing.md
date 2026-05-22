@@ -3,8 +3,8 @@
 Run static checks first:
 
 ```bash
-python3 scripts/validate_threadex.py .
-python3 /Users/jaehoonseo/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
+python3 /Users/jaehoonseo/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/threadex
 ```
 
 ## Skill Trigger Checks
@@ -32,7 +32,7 @@ Spawn verifier to audit whether the previous result is complete. It must return 
 Spawn code-reviewer to review the current diff. It must lead with findings and not rewrite code.
 ```
 
-If custom adapter names from `codex/agents/*.toml` are not available in the current Codex runtime, spawn the closest native role and pass the relevant adapter contract as task context. Record that as a runtime limitation, not a plugin success.
+If custom adapter names from `plugins/threadex/codex/agents/*.toml` are not available in the current Codex runtime, spawn the closest native role and pass the relevant adapter contract as task context. Record that as a runtime limitation, not a plugin success.
 
 Evidence from repository checks proves that the contracts and routing prompts exist. It does not prove Codex runtime registration. Runtime registration is proven only after installing Threadex, restarting Codex, starting a fresh thread, and observing the skill/subagent behavior there.
 

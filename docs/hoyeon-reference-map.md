@@ -4,9 +4,9 @@ Threadex intentionally references Hoyeon's public repository while keeping its o
 
 | Hoyeon idea | Threadex adaptation |
 |---|---|
-| Codex-facing wrapper skills under `codex/skills/` | Direct plugin skills under `skills/` with concise trigger descriptions |
+| Codex-facing wrapper skills under `codex/skills/` | Direct plugin skills under `plugins/threadex/skills/` with concise trigger descriptions |
 | Requirement-first flow | `clarify -> specify -> goal-draft` |
-| Agent adapters such as code explorer, verifier, reviewer | `codex/agents/*.toml` prompt contracts without the Hoyeon prefix |
+| Agent adapters such as code explorer, verifier, reviewer | `plugins/threadex/codex/agents/*.toml` prompt contracts without the Hoyeon prefix |
 | Verification gates before completion | `verify`, `review`, and goal blocked-stop conditions |
 | Learnings compound into later specs | `compound` writes reusable rules, not transcripts |
 | Bash-first Codex adapter and no hooks/MCP in initial slice | Threadex ships no hooks or MCP in the default path |
