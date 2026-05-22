@@ -1,0 +1,104 @@
+{
+  "skills": [
+    {
+      "name": "clarify",
+      "explicit": "$clarify \"add a settings toggle\"",
+      "natural": "요구사항이 모호하지 않게 한 질문씩 물어봐줘.",
+      "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
+      "expected_output": "next question or clarified summary"
+    },
+    {
+      "name": "specify",
+      "explicit": "$specify \"dark mode toggle\"",
+      "natural": "이 작업을 검증 가능한 요구사항으로 바꿔줘.",
+      "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
+      "expected_output": "requirements preview or requirements.md"
+    },
+    {
+      "name": "goal-draft",
+      "explicit": "$goal-draft .threadex/requirements.md",
+      "natural": "이 PRD를 Codex /goal 프롬프트로 만들어줘.",
+      "expected_agents": ["verifier"],
+      "expected_output": "paste-ready prompt for Codex's built-in /goal under 4000 characters"
+    },
+    {
+      "name": "verify",
+      "explicit": "$verify \"is this done?\"",
+      "natural": "완료됐다는 주장을 증거로 검증해줘.",
+      "expected_agents": ["verifier"],
+      "expected_output": "PASS, FAIL, or BLOCKED with evidence"
+    },
+    {
+      "name": "review",
+      "explicit": "$review",
+      "natural": "이 diff에 ship blocker가 있는지 리뷰해줘.",
+      "expected_agents": ["code-reviewer"],
+      "expected_output": "severity-ordered findings or residual risk"
+    },
+    {
+      "name": "compound",
+      "explicit": "$compound",
+      "natural": "이번 실행에서 다음에 재사용할 교훈을 정리해줘.",
+      "expected_agents": ["docs-researcher"],
+      "expected_output": "reusable learnings with evidence"
+    }
+  ],
+  "subagents": [
+    {
+      "name": "code-explorer",
+      "spawn_smoke": "Ask for a read-only search of relevant files and expect no edits."
+    },
+    {
+      "name": "docs-researcher",
+      "spawn_smoke": "Ask for README/AGENTS/docs references and expect file:line evidence."
+    },
+    {
+      "name": "gap-auditor",
+      "spawn_smoke": "Pass a short Q&A log and expect CONTINUE or SUFFICIENT."
+    },
+    {
+      "name": "worker",
+      "spawn_smoke": "Delegate a tiny file-scoped implementation and expect changed files plus verification."
+    },
+    {
+      "name": "verifier",
+      "spawn_smoke": "Ask to verify a concrete claim and expect PASS/FAIL/BLOCKED evidence."
+    },
+    {
+      "name": "code-reviewer",
+      "spawn_smoke": "Ask to review a diff and expect severity-ordered findings."
+    }
+  ],
+  "routing": [
+    {
+      "skill": "clarify",
+      "agent": "gap-auditor",
+      "handoff": "audit whether enough ambiguity has been resolved"
+    },
+    {
+      "skill": "specify",
+      "agent": "gap-auditor",
+      "handoff": "audit whether requirements cover users, states, edge cases, constraints, and verification"
+    },
+    {
+      "skill": "goal-draft",
+      "agent": "verifier",
+      "handoff": "check the /goal has concrete evidence and blocked stop conditions"
+    },
+    {
+      "skill": "verify",
+      "agent": "verifier",
+      "handoff": "run the independent completion audit"
+    },
+    {
+      "skill": "review",
+      "agent": "code-reviewer",
+      "handoff": "run independent bug/regression review"
+    },
+    {
+      "skill": "compound",
+      "agent": "docs-researcher",
+      "handoff": "find where reusable learnings belong"
+    }
+  ]
+}

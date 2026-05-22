@@ -1,19 +1,40 @@
 {
   "name": "threadex",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lightweight requirement-to-goal harness for Codex",
   "author": {
     "name": "jaehoonE7877",
     "email": "sjh7877@naver.com"
   },
+  "homepage": "https://github.com/jaehoonE7877/threadex",
+  "repository": "https://github.com/jaehoonE7877/threadex",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "skills",
+    "requirements",
+    "goal",
+    "verification",
+    "subagents"
+  ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Threadex",
     "shortDescription": "Thread intent into verified Codex goals.",
-    "longDescription": "Threadex is a thin Codex harness for clarifying intent, drafting verifiable requirements, turning them into compact /goal prompts, verifying agent output, and preserving useful learnings.",
+    "longDescription": "Threadex is a thin Codex harness for clarifying intent, drafting verifiable requirements, preparing compact prompts for Codex's built-in /goal feature, verifying agent output, and preserving useful learnings.",
     "developerName": "jaehoonE7877",
-    "category": "Productivity",
-    "capabilities": [],
-    "defaultPrompt": "Help me turn this request into a verified Codex goal with Threadex."
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/jaehoonE7877/threadex",
+    "defaultPrompt": [
+      "Use Threadex to clarify this request and prepare a verified prompt for Codex /goal.",
+      "Use Threadex to write requirements before Codex starts implementation.",
+      "Use Threadex to verify whether this agent result is actually complete."
+    ],
+    "brandColor": "#10A37F"
   }
 }

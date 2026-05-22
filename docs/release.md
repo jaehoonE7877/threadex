@@ -1,0 +1,38 @@
+# Release and Marketplace Path
+
+Threadex is a public GitHub plugin repository at:
+
+```text
+https://github.com/jaehoonE7877/threadex
+```
+
+## Release Gates
+
+Before pushing a release:
+
+```bash
+python3 scripts/validate_threadex.py .
+python3 /Users/jaehoonseo/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+git status --short
+```
+
+The working tree should be clean after commit and push.
+
+## Marketplace Registration
+
+Codex supports Git-backed marketplace sources:
+
+```bash
+codex plugin marketplace add jaehoonE7877/threadex --ref main
+codex plugin marketplace upgrade threadex
+```
+
+For local testing, add a local marketplace file or use `@plugin-creator` to generate one.
+
+Official public Plugin Directory publishing is not self-serve yet. Until that changes, the practical release path is:
+
+1. Keep the repository public.
+2. Keep `.codex-plugin/plugin.json` valid.
+3. Push tags or main branch updates.
+4. Register the repo as a Codex marketplace source.
+5. Install and smoke-test in a fresh Codex thread.

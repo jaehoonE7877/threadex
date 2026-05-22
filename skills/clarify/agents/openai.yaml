@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clarify"
+  short_description: "Resolve ambiguity before specs, goals, or code"
+  default_prompt: "Use $clarify to ask one question at a time until my request is clear."
