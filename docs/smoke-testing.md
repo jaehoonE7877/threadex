@@ -44,7 +44,6 @@ For each skill, ask it to state which subagent it would use and why before deleg
 |---|---|
 | `clarify` | `gap-auditor` for ambiguity audit; `code-explorer`/`docs-researcher` for evidence |
 | `specify` | `gap-auditor` for requirements coverage |
-| `goal-draft` | `verifier` for evidence and blocked-condition audit |
 | `verify` | `verifier` for completion audit |
 | `review` | `code-reviewer` for bug/regression review |
 | `compound` | `docs-researcher` for persistence location |

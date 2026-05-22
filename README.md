@@ -18,7 +18,7 @@ The design references [team-attention/hoyeon](https://github.com/team-attention/
 |---|---|---|
 | `clarify` | The request is ambiguous or the user asks to keep asking until clear. | `code-explorer`, `docs-researcher`, `gap-auditor` |
 | `specify` | A request should become requirements before implementation. | `code-explorer`, `docs-researcher`, `gap-auditor` |
-| `goal-draft` | Requirements or a plan should become a compact prompt for Codex's built-in `/goal` feature. | `verifier` |
+| `goal-draft` | Requirements or a plan should become a compact prompt for Codex's built-in `/goal` feature. | none by default; copied `draft-codex-goal` self-check contract |
 | `verify` | A result claims to be done and needs evidence-based checking. | `verifier` |
 | `review` | A diff or implementation needs bug/regression review. | `code-reviewer` |
 | `compound` | A completed or blocked run should be turned into reusable learnings. | `docs-researcher` |

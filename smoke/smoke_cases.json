@@ -18,7 +18,7 @@
       "name": "goal-draft",
       "explicit": "$goal-draft .threadex/requirements.md",
       "natural": "이 PRD를 Codex /goal 프롬프트로 만들어줘.",
-      "expected_agents": ["verifier"],
+      "expected_agents": [],
       "expected_output": "paste-ready prompt for Codex's built-in /goal under 4000 characters"
     },
     {
@@ -79,11 +79,6 @@
       "skill": "specify",
       "agent": "gap-auditor",
       "handoff": "audit whether requirements cover users, states, edge cases, constraints, and verification"
-    },
-    {
-      "skill": "goal-draft",
-      "agent": "verifier",
-      "handoff": "check the /goal has concrete evidence and blocked stop conditions"
     },
     {
       "skill": "verify",

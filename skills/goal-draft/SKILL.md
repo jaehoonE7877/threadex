@@ -3,11 +3,11 @@ name: goal-draft
 description: Use when the user wants a Codex `/goal` prompt or asks Codex to keep working toward a durable objective, including Korean requests like "goal 프롬프트를 생성해줘", "goal 프롬프트 만들어줘", "목표 프롬프트 만들어줘", "이 작업을 /goal로 바꿔줘", or long-running migration, refactor, debugging, flaky-test, performance, research, release, documentation, prototype, or eval-driven work with a clear finish line.
 ---
 
-# Goal Draft
+# Draft Codex Goal
 
 ## Overview
 
-Turn a rough work intention into a compact, evidence-checkable prompt for Codex's built-in `/goal` feature. This skill does not implement or replace `/goal`; it only prepares the `/goal` text the user can submit to Codex. A good goal is bigger than one normal prompt but smaller than an open-ended backlog: one durable objective, one verifiable stopping condition, clear constraints, allowed scope, iteration policy, and blocker reporting. The final `/goal` text must stay within 4000 characters so Codex can accept it.
+Turn a rough work intention into a compact, evidence-checkable Codex `/goal` prompt. A good goal is bigger than one normal prompt but smaller than an open-ended backlog: one durable objective, one verifiable stopping condition, clear constraints, allowed scope, iteration policy, and blocker reporting. The final `/goal` text must stay within 4000 characters so Codex can accept it.
 
 ## Workflow
 
@@ -16,9 +16,8 @@ Turn a rough work intention into a compact, evidence-checkable prompt for Codex'
 3. Route to a domain default only when it clearly applies.
 4. Ask only for missing details that make completion unverifiable or unsafe to scope.
 5. Draft a paste-ready `/goal` block of 4000 characters or less.
-6. Ask `verifier` to sanity-check high-risk or release-bound drafts when useful.
-7. Self-check the draft before returning it.
-8. Add a short Korean note only when assumptions, slot choices, or tradeoffs need review.
+6. Self-check the draft before returning it.
+7. Add a short Korean note only when assumptions, slot choices, or tradeoffs need review.
 
 Use `/goal` when the task has a clear finish line but the path is uncertain, especially for multi-step implementation, migration, debugging, flaky-test investigation, performance tuning, research reproduction, release preparation, documentation, prototypes, prompt optimization, or artifact production. Prefer a normal prompt for one-off edits, short answers, command lookup, or a single obvious change.
 
@@ -89,12 +88,6 @@ Question format:
 - If the draft risks exceeding 4000 characters, compress in this order: remove optional rationale, merge repeated bullets, shorten boundaries to named sources, replace long detail lists with referenced artifacts, and ask the user to split the goal only if it still cannot fit.
 
 For a stricter preflight, read [references/slot_checklist.md](references/slot_checklist.md). For style tightening, read [references/style_overlay.md](references/style_overlay.md). Read these only when the draft is vague, long, or the user pasted a near-complete goal to improve.
-
-## Subagent Handoff
-
-- `verifier`: for high-risk or release-bound drafts, check measurable evidence, unstated destructive actions, missing boundaries, and over-broad completion claims.
-
-Use the subagent only when it adds real confidence. For straightforward drafts, self-check directly with the six-slot contract.
 
 ## Output Format
 

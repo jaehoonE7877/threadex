@@ -76,7 +76,7 @@ def main() -> None:
             fail(f"{skill} description must start with 'Use when'")
         if len(desc) > 700:
             fail(f"{skill} description is too long for reliable trigger matching")
-        if "## Subagent Handoff" not in text:
+        if skill != "goal-draft" and "## Subagent Handoff" not in text:
             fail(f"{skill} must document Subagent Handoff")
         if not (root / "skills" / skill / "agents" / "openai.yaml").exists():
             fail(f"{skill} is missing agents/openai.yaml metadata")
@@ -117,8 +117,10 @@ def main() -> None:
     goal_text = read(root / "skills" / "goal-draft" / "SKILL.md")
     if "4000" not in goal_text:
         fail("goal-draft skill must enforce the 4000 character limit")
-    if "does not implement or replace `/goal`" not in goal_text:
-        fail("goal-draft must state that /goal is a built-in Codex feature")
+    if "name: draft-codex-goal" in goal_text:
+        fail("goal-draft must keep the skill name as goal-draft")
+    if "# Draft Codex Goal" not in goal_text:
+        fail("goal-draft must preserve the copied draft-codex-goal content")
     for required in [
         "Six-Slot Contract",
         "Domain Routing",
