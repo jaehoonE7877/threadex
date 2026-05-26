@@ -40,7 +40,7 @@
       "explicit": "$compound",
       "natural": "이번 실행에서 다음에 재사용할 교훈을 정리해줘.",
       "expected_agents": ["docs-researcher"],
-      "expected_output": "ledger-ready learnings, report summary, long-term doc target, and next specify defaults"
+      "expected_output": "raw ledger entry, AI index update, report summary, human doc target, and next specify defaults"
     }
   ],
   "subagents": [
@@ -89,7 +89,7 @@
     {
       "skill": "compound",
       "agent": "docs-researcher",
-      "handoff": "find existing learning ledgers, long-term docs, and the persistence target"
+      "handoff": "find the raw learning ledger, AI index, related human docs, and the persistence target"
     }
   ]
 }

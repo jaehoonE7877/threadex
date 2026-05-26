@@ -49,7 +49,7 @@ For each skill, ask it to state which subagent it would use and why before deleg
 | `specify` | `gap-auditor` for requirements coverage |
 | `verify` | `verifier` for completion audit |
 | `review` | `code-reviewer` for bug/regression review |
-| `compound` | `docs-researcher` for persistence location |
+| `compound` | `docs-researcher` for raw ledger, AI index, and human doc location |
 
 Pass criteria:
 

@@ -26,9 +26,11 @@ EXPECTED_AGENT_MODELS = {
     "code-reviewer": "gpt-5.5",
 }
 COMPOUND_REQUIRED_TERMS = [
-    ".threadex/specs/{work-slug}/context/learnings.json",
-    ".threadex/context/learnings.json",
+    ".threadex/learnings/ledger.json",
+    ".threadex/learnings/index.json",
     "docs/learnings/{YYYY-MM-DD}-{short-title}.md",
+    "source",
+    "human_doc",
     "problem",
     "cause",
     "rule",
@@ -38,8 +40,9 @@ COMPOUND_REQUIRED_TERMS = [
     "Next specify defaults",
 ]
 SPECIFY_REQUIRED_LEARNING_TERMS = [
-    ".threadex/specs/**/context/learnings.json",
-    ".threadex/context/learnings.json",
+    ".threadex/learnings/index.json",
+    ".threadex/learnings/ledger.json",
+    "human_doc",
     "Prior Learnings Applied",
 ]
 

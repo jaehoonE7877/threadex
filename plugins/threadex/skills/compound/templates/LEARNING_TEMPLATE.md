@@ -2,7 +2,9 @@
 date: {YYYY-MM-DD}
 problem_type: {TYPE}
 tags: [{TAGS}]
-ledger_path: {LEDGER_PATH}
+ledger_path: .threadex/learnings/ledger.json
+index_path: .threadex/learnings/index.json
+ledger_id: {LEDGER_ID}
 source: {SOURCE}
 ---
 
@@ -31,6 +33,10 @@ source: {SOURCE}
 ## Next Specify Defaults
 
 {Requirements, constraints, or verification defaults to carry into future specify runs.}
+
+## AI Index Entry
+
+{Compact rule, tags, applies_when triggers, and human_doc path to keep in .threadex/learnings/index.json.}
 
 ## Related
 
