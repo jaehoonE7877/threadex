@@ -12,7 +12,7 @@
       "explicit": "$specify \"dark mode toggle\"",
       "natural": "이 작업을 검증 가능한 요구사항으로 바꿔줘.",
       "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "requirements preview or requirements.md"
+      "expected_output": "requirements preview or requirements.md with relevant prior learnings applied"
     },
     {
       "name": "goal-draft",
@@ -40,7 +40,7 @@
       "explicit": "$compound",
       "natural": "이번 실행에서 다음에 재사용할 교훈을 정리해줘.",
       "expected_agents": ["docs-researcher"],
-      "expected_output": "reusable learnings with evidence"
+      "expected_output": "ledger-ready learnings, report summary, long-term doc target, and next specify defaults"
     }
   ],
   "subagents": [
@@ -89,7 +89,7 @@
     {
       "skill": "compound",
       "agent": "docs-researcher",
-      "handoff": "find where reusable learnings belong"
+      "handoff": "find existing learning ledgers, long-term docs, and the persistence target"
     }
   ]
 }

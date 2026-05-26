@@ -31,6 +31,23 @@ FORBIDDEN_CALL_PATTERNS = [
     r"name\s*=\s*['\"]hoyeon-",
     r"^name:\s*hoyeon-",
 ]
+COMPOUND_REQUIRED_TERMS = [
+    ".threadex/specs/{work-slug}/context/learnings.json",
+    ".threadex/context/learnings.json",
+    "docs/learnings/{YYYY-MM-DD}-{short-title}.md",
+    "problem",
+    "cause",
+    "rule",
+    "evidence",
+    "tags",
+    "created_at",
+    "Next specify defaults",
+]
+SPECIFY_REQUIRED_LEARNING_TERMS = [
+    ".threadex/specs/**/context/learnings.json",
+    ".threadex/context/learnings.json",
+    "Prior Learnings Applied",
+]
 
 
 def fail(message: str) -> None:
@@ -111,6 +128,22 @@ def main() -> None:
         skill_text = read(root / "skills" / route["skill"] / "SKILL.md")
         if route["agent"] not in skill_text:
             fail(f"routing {route['skill']} -> {route['agent']} not documented in skill")
+
+    compound_text = read(root / "skills" / "compound" / "SKILL.md")
+    for required in COMPOUND_REQUIRED_TERMS:
+        if required not in compound_text:
+            fail(f"compound is missing learning pipeline contract: {required}")
+    for support_file in [
+        root / "skills" / "compound" / "references" / "problem-types.md",
+        root / "skills" / "compound" / "templates" / "LEARNING_TEMPLATE.md",
+    ]:
+        if not support_file.exists():
+            fail(f"compound missing support file: {support_file.name}")
+
+    specify_text = read(root / "skills" / "specify" / "SKILL.md")
+    for required in SPECIFY_REQUIRED_LEARNING_TERMS:
+        if required not in specify_text:
+            fail(f"specify is missing learning reuse contract: {required}")
 
     all_text = "\n".join(
         p.read_text(encoding="utf-8")
