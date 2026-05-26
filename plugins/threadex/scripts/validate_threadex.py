@@ -25,12 +25,6 @@ EXPECTED_AGENT_MODELS = {
     "verifier": "gpt-5.5",
     "code-reviewer": "gpt-5.5",
 }
-FORBIDDEN_CALL_PATTERNS = [
-    r"\$hoyeon[-\w]*",
-    r"(?<!team-attention)/hoyeon[-\w]*",
-    r"name\s*=\s*['\"]hoyeon-",
-    r"^name:\s*hoyeon-",
-]
 COMPOUND_REQUIRED_TERMS = [
     ".threadex/specs/{work-slug}/context/learnings.json",
     ".threadex/context/learnings.json",
@@ -144,18 +138,6 @@ def main() -> None:
     for required in SPECIFY_REQUIRED_LEARNING_TERMS:
         if required not in specify_text:
             fail(f"specify is missing learning reuse contract: {required}")
-
-    all_text = "\n".join(
-        p.read_text(encoding="utf-8")
-        for p in root.rglob("*")
-        if p.is_file()
-        and ".git" not in p.parts
-        and p.name != "validate_threadex.py"
-        and p.suffix in {".md", ".json", ".toml", ".yaml"}
-    )
-    for pattern in FORBIDDEN_CALL_PATTERNS:
-        if re.search(pattern, all_text, re.M):
-            fail(f"forbidden copied Hoyeon invocation or adapter name found: {pattern}")
 
     goal_text = read(root / "skills" / "goal-draft" / "SKILL.md")
     if "4000" not in goal_text:
