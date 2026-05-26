@@ -151,6 +151,7 @@ docs/learnings/{YYYY-MM-DD}-{short-title}.md
 `spec`이 있거나 PR, 브랜치, 요구사항 파일이 있어도 ledger 파일을 새로 나누지 않습니다.
 대신 `ledger.json` 안의 `source` 필드로 어디서 나온 learning인지 기록합니다.
 다음 `specify`는 먼저 `index.json`을 보고, 더 자세한 설명이 필요할 때만 연결된 `docs/learnings/*.md` 문서를 엽니다.
+사람이 읽는 `docs/learnings` 문서 이름은 기본적으로 날짜와 짧은 제목을 쓰지만, repo에 이미 다른 파일명 규칙이 있으면 그 규칙을 먼저 따릅니다.
 
 더 자세한 파일은 아래에서 볼 수 있습니다.
 

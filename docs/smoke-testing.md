@@ -4,6 +4,8 @@ Run static checks first:
 
 ```bash
 python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
+: "${NEXT_VERSION:?set NEXT_VERSION to the version you are about to publish}"
+THREADEX_RELEASE_VERSION="$NEXT_VERSION" python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
 python3 /Users/jaehoonseo/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/threadex
 ```
 
@@ -57,6 +59,9 @@ Pass criteria:
 - The subagent receives a bounded task.
 - The subagent follows its contract.
 - The parent skill integrates the result without pretending weak evidence is complete.
+- `clarify` shows decision progress and hands off to `specify` instead of writing requirements or implementation artifacts.
+- `specify` separates blocking Open Decisions from non-blocking defaults before handoff.
+- `compound` chooses human learning doc paths from local naming conventions when visible.
 
 ## Known Gap
 
