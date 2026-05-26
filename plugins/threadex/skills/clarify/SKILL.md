@@ -32,9 +32,20 @@ Run a one-question-at-a-time ambiguity loop before requirements or implementatio
 1. Mirror the current understanding: goal, non-goals, known facts, unknowns.
 2. Use `code-explorer` or `docs-researcher` when local code or docs can answer better than the user.
 3. Ask exactly one blocking question at a time.
-4. Keep a compact Q&A log in the conversation, or write `.threadex/clarify/qa-log.md` if the user wants a durable artifact.
-5. At audit points, ask `gap-auditor` to decide `CONTINUE` or `SUFFICIENT`.
-6. Hand off to `specify` only after the user confirms the clarified summary.
+4. Keep a compact Q&A log in the conversation, or write `.threadex/clarify/qa-log.md` only if the user wants a durable artifact.
+5. Show `Decision progress` after each answer: decisions locked, remaining decision axes, and the next blocking question.
+6. At audit points, ask `gap-auditor` to decide `CONTINUE` or `SUFFICIENT`.
+7. When the request is usable but could be refined further, show a `Sufficient for specify` checkpoint instead of continuing by default.
+8. Hand off to `specify` only after the user confirms the clarified summary.
+
+## Boundary
+
+Clarify is a handoff skill, not an artifact-writing skill.
+
+- Do not draft requirements, implementation plans, code, ADRs, README edits, or other deliverables from this skill.
+- If the user asks to write an artifact during clarification, first return the clarified summary and mark `Ready for: specify` or `Ready for: goal-draft`.
+- A durable Q&A log is allowed only when the user explicitly asks for a saved clarification record.
+- The next skill may write artifacts after its own preview/approval rules are satisfied.
 
 ## Subagent Handoff
 
@@ -56,6 +67,11 @@ Spawn subagents only when they can answer a bounded question in parallel. If sub
 Return either the next question or this summary:
 
 ```text
+Decision progress:
+- Locked decisions: 0/0
+- Remaining decision axes:
+- Sufficient for specify: yes | no
+
 Clarified intent:
 - Goal:
 - Non-goals:
@@ -72,12 +88,14 @@ Before returning a summary, check that:
 - Decisions are concrete enough for `specify` or `goal-draft`.
 - Open questions list only material blockers.
 - `Ready for` is exactly one of `specify`, `goal-draft`, or `blocked`.
-- No requirements, implementation plan, code, or ADR content was drafted unless the user explicitly requested that handoff.
+- No requirements, implementation plan, code, ADR content, README edits, or other deliverables were drafted inside `clarify`.
+- Any artifact request was converted into an explicit handoff target instead of being executed by `clarify`.
 
 ## Gotchas
 
 - Do not ask the user for facts that the repo can answer cheaply.
 - Do not batch multiple blocking questions into one turn.
 - Do not treat "interesting but non-blocking" uncertainty as a reason to continue clarifying.
+- Do not turn a long one-question loop into hidden planning. Use progress and the sufficient-for-specify checkpoint to keep the user oriented.
 
-Do not write requirements, implementation plans, code, or ADRs from this skill unless the user explicitly asks for that handoff.
+Do not write requirements, implementation plans, code, ADRs, README edits, or other deliverables from this skill. Return the clarified handoff target instead.

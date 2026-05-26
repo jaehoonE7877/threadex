@@ -41,11 +41,13 @@ Keep Threadex thin: store practical rules, not a full execution state machine.
 
 - Raw ledger: `.threadex/learnings/ledger.json`
 - AI index: `.threadex/learnings/index.json`
-- Human docs: `docs/learnings/{YYYY-MM-DD}-{short-title}.md`
+- Human docs: `docs/learnings/{YYYY-MM-DD}-{short-title}.md` by default
 - Template for human docs: `templates/LEARNING_TEMPLATE.md`
 - Problem type reference: `references/problem-types.md`
 
 Do not create separate spec-specific or fallback ledger files. Keep all raw AI-readable learnings in `.threadex/learnings/ledger.json`, and record origin details in each entry's `source` field. Keep compact reusable lookup data in `.threadex/learnings/index.json`. Keep human-readable explanation in `docs/learnings/`.
+
+Prefer local naming conventions for human docs before the default path. Check `AGENTS.md`, README guidance, existing docs conventions, and nearby `docs/learnings/` filenames. If the repo clearly uses snake_case, dated underscores, localized titles, or another stable convention, follow that convention and record the chosen path in `human_doc`. Fall back to `docs/learnings/{YYYY-MM-DD}-{short-title}.md` only when no local convention is visible.
 
 ## Ledger Schema
 
@@ -103,7 +105,7 @@ The index is not a second source of truth. It is a small lookup map derived from
 6. Deduplicate by comparing `rule`, `tags`, and `applies_when` against the raw ledger, AI index, and directly related human docs. Merge or skip duplicates instead of appending another entry.
 7. When writing is intended, create `.threadex/learnings/` if needed, then append or update the raw ledger. Keep stable IDs by continuing from the highest existing `L{n}`.
 8. Update `.threadex/learnings/index.json` with one compact entry per reusable rule. Keep it derived, short, and easy for `specify` to scan.
-9. Create or update a human doc under `docs/learnings/` only for lessons that are likely to matter beyond the current work. Use `templates/LEARNING_TEMPLATE.md`.
+9. Create or update a human doc under `docs/learnings/` only for lessons that are likely to matter beyond the current work. Use `templates/LEARNING_TEMPLATE.md` and the repo's local naming convention.
 10. Return a report-ready summary and `Next specify defaults` that future `specify` runs can copy into requirements, constraints, or verification.
 
 ## Subagent Handoff
@@ -151,6 +153,7 @@ Before finalizing or appending, check that each learning has:
 - A reusable rule that changes a future `clarify`, `specify`, or `goal` pass.
 - A compact AI index entry when the rule should affect future `specify`.
 - A report summary and next-spec default when the learning affects future requirements.
+- A human doc path that follows local naming conventions when they are visible, otherwise the default dated hyphen path.
 
 ## Examples
 

@@ -5,14 +5,14 @@
       "explicit": "$clarify \"add a settings toggle\"",
       "natural": "요구사항이 모호하지 않게 한 질문씩 물어봐줘.",
       "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "next question or clarified summary"
+      "expected_output": "next question or clarified summary with decision progress and a specify handoff checkpoint"
     },
     {
       "name": "specify",
       "explicit": "$specify \"dark mode toggle\"",
       "natural": "이 작업을 검증 가능한 요구사항으로 바꿔줘.",
       "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "requirements preview or requirements.md with relevant prior learnings applied"
+      "expected_output": "requirements preview or requirements.md with relevant prior learnings applied and Open Decisions split into blocking choices and non-blocking defaults"
     },
     {
       "name": "goal-draft",
@@ -40,7 +40,7 @@
       "explicit": "$compound",
       "natural": "이번 실행에서 다음에 재사용할 교훈을 정리해줘.",
       "expected_agents": ["docs-researcher"],
-      "expected_output": "raw ledger entry, AI index update, report summary, human doc target, and next specify defaults"
+      "expected_output": "raw ledger entry, AI index update, report summary, local-convention-aware human doc target, and next specify defaults"
     }
   ],
   "subagents": [

@@ -36,8 +36,9 @@ Turn clarified intent into requirements that an agent can verify. Preserve Threa
 4. Open `.threadex/learnings/ledger.json` or the linked `human_doc` only when the index entry is ambiguous, disputed, or too short for the requirement decision.
 5. Draft requirements as behavior-first bullets with acceptance evidence.
 6. Ask `gap-auditor` to review missing users, states, data, edge cases, constraints, verification surfaces, and applied learning coverage when risk is medium or higher.
-7. Show a preview and get user approval before writing `requirements.md`.
-8. If writing a file, prefer `.threadex/requirements.md` unless the user names another path.
+7. Split `Open Decisions` into `Blocking` and `Non-blocking defaults` before `goal-draft` or implementation handoff.
+8. Show a preview and get user approval before writing `requirements.md`.
+9. If writing a file, prefer `.threadex/requirements.md` unless the user names another path.
 
 ## Output
 
@@ -62,6 +63,10 @@ Use this requirement shape:
 - Command, file, screenshot, report, or manual check:
 
 ## Open Decisions
+### Blocking
+- ...
+
+### Non-blocking defaults
 - ...
 ```
 
@@ -74,7 +79,9 @@ Before finalizing, verify that:
 - Constraints include non-regression, safety, data, compatibility, and scope limits that matter.
 - Prior Learnings Applied names relevant AI index rules or says none were found after a bounded search.
 - Verification names concrete commands, files, screenshots, reports, or manual checks.
-- Open Decisions contains only unresolved choices that materially affect implementation.
+- Open Decisions separates blockers from defaultable choices before `goal-draft` or implementation.
+- Blocking decisions are the only unresolved choices that materially affect implementation.
+- Non-blocking defaults name the assumption that can be carried forward if the user does not override it.
 
 ## Risk Triggers
 
@@ -99,6 +106,7 @@ Call `gap-auditor` when the requirements touch authentication, payments, privacy
 - Do not claim automatic BM25 or semantic retrieval. Use `.threadex/learnings/index.json` for simple keyword, tag, and `applies_when` search.
 - Do not scan every `docs/learnings/*.md` by default; open only a linked human doc when the AI index entry is insufficient.
 - Do not hide uncertainty inside acceptance criteria; put unresolved choices under Open Decisions.
+- Do not pass unresolved blockers to `goal-draft` as if they were settled requirements.
 - Do not write `requirements.md` until the user approves the preview.
 
 Do not create `plan.json`, mutate unrelated files, or start implementation from this skill.

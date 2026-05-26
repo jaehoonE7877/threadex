@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 import sys
 import tomllib
 from pathlib import Path
@@ -45,6 +47,22 @@ SPECIFY_REQUIRED_LEARNING_TERMS = [
     "human_doc",
     "Prior Learnings Applied",
 ]
+CLARIFY_REQUIRED_BOUNDARY_TERMS = [
+    "Decision progress",
+    "remaining decision axes",
+    "Sufficient for specify",
+    "Do not draft requirements",
+]
+SPECIFY_REQUIRED_OPEN_DECISION_TERMS = [
+    "Blocking",
+    "Non-blocking defaults",
+    "before `goal-draft` or implementation",
+]
+COMPOUND_REQUIRED_CONVENTION_TERMS = [
+    "local naming conventions",
+    "AGENTS.md",
+    "nearby `docs/learnings/` filenames",
+]
 
 
 def fail(message: str) -> None:
@@ -70,12 +88,78 @@ def parse_frontmatter(text: str, path: Path) -> dict[str, str]:
     return fields
 
 
+def parse_semver(value: str | None, label: str) -> tuple[int, int, int]:
+    if value is None:
+        fail(f"{label} is missing")
+    match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)", value)
+    if not match:
+        fail(f"{label} must be a semver like 0.3.6")
+    return tuple(int(part) for part in match.groups())
+
+
+def git_output(root: Path, *args: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(root), *args],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+    return result.stdout.strip()
+
+
+def tag_version(tag: str) -> tuple[int, int, int] | None:
+    match = re.fullmatch(r"v(\d+)\.(\d+)\.(\d+)", tag.strip())
+    if not match:
+        return None
+    return tuple(int(part) for part in match.groups())
+
+
+def validate_manifest_version(root: Path, version: str) -> None:
+    manifest_semver = parse_semver(version, "manifest version")
+
+    expected_version = os.environ.get("THREADEX_RELEASE_VERSION")
+    if expected_version:
+        expected_semver = parse_semver(expected_version, "THREADEX_RELEASE_VERSION")
+        if manifest_semver != expected_semver:
+            fail(
+                "manifest version must match THREADEX_RELEASE_VERSION "
+                f"({version} != {expected_version})"
+            )
+
+    latest_tags = git_output(root, "tag", "--list", "v[0-9]*")
+    tag_versions = [
+        parsed
+        for tag in (latest_tags or "").splitlines()
+        if (parsed := tag_version(tag)) is not None
+    ]
+    if tag_versions and manifest_semver < max(tag_versions):
+        latest = ".".join(str(part) for part in max(tag_versions))
+        fail(f"manifest version {version} is older than latest git tag v{latest}")
+
+    head_tags = git_output(root, "tag", "--points-at", "HEAD")
+    head_versions = [
+        parsed
+        for tag in (head_tags or "").splitlines()
+        if (parsed := tag_version(tag)) is not None
+    ]
+    worktree_status = git_output(root, "status", "--porcelain")
+    worktree_is_clean = worktree_status == ""
+    if head_versions and worktree_is_clean and manifest_semver != max(head_versions):
+        head_version = ".".join(str(part) for part in max(head_versions))
+        fail(f"manifest version {version} must match HEAD release tag v{head_version}")
+
+
 def main() -> None:
     root = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
 
     manifest = json.loads(read(root / ".codex-plugin" / "plugin.json"))
     if manifest.get("name") != "threadex":
         fail("plugin name must be threadex")
+    validate_manifest_version(root, manifest.get("version"))
     if manifest.get("skills") != "./skills/":
         fail("manifest skills path must be ./skills/")
     if manifest.get("repository") != "https://github.com/jaehoonE7877/threadex":
@@ -130,6 +214,9 @@ def main() -> None:
     for required in COMPOUND_REQUIRED_TERMS:
         if required not in compound_text:
             fail(f"compound is missing learning pipeline contract: {required}")
+    for required in COMPOUND_REQUIRED_CONVENTION_TERMS:
+        if required not in compound_text:
+            fail(f"compound is missing local convention contract: {required}")
     for support_file in [
         root / "skills" / "compound" / "references" / "problem-types.md",
         root / "skills" / "compound" / "templates" / "LEARNING_TEMPLATE.md",
@@ -137,10 +224,18 @@ def main() -> None:
         if not support_file.exists():
             fail(f"compound missing support file: {support_file.name}")
 
+    clarify_text = read(root / "skills" / "clarify" / "SKILL.md")
+    for required in CLARIFY_REQUIRED_BOUNDARY_TERMS:
+        if required not in clarify_text:
+            fail(f"clarify is missing boundary/progress contract: {required}")
+
     specify_text = read(root / "skills" / "specify" / "SKILL.md")
     for required in SPECIFY_REQUIRED_LEARNING_TERMS:
         if required not in specify_text:
             fail(f"specify is missing learning reuse contract: {required}")
+    for required in SPECIFY_REQUIRED_OPEN_DECISION_TERMS:
+        if required not in specify_text:
+            fail(f"specify is missing open decision handoff contract: {required}")
 
     goal_text = read(root / "skills" / "goal-draft" / "SKILL.md")
     if "4000" not in goal_text:
