@@ -25,16 +25,18 @@ Turn clarified intent into requirements that an agent can verify. Preserve Threa
 
 - Clarified intent, Q&A notes, or a user request clear enough to specify.
 - Relevant repo evidence, docs, tests, design conventions, or existing behavior when project context matters.
+- Relevant prior learnings from `.threadex/specs/**/context/learnings.json`, `.threadex/context/learnings.json`, or `docs/learnings/*.md` when project context matters.
 - Any required output path; otherwise prefer `.threadex/requirements.md` only when writing is approved.
 
 ## Workflow
 
 1. Confirm the input is clear enough. If not, hand back to `clarify`.
 2. Inspect repo evidence through `code-explorer` and `docs-researcher` when project context matters.
-3. Draft requirements as behavior-first bullets with acceptance evidence.
-4. Ask `gap-auditor` to review missing users, states, data, edge cases, constraints, and verification surfaces when risk is medium or higher.
-5. Show a preview and get user approval before writing `requirements.md`.
-6. If writing a file, prefer `.threadex/requirements.md` unless the user names another path.
+3. Search prior learnings by path, keyword, and tags when the request overlaps past work. Apply only relevant rules; summarize skipped or irrelevant learnings briefly when useful.
+4. Draft requirements as behavior-first bullets with acceptance evidence.
+5. Ask `gap-auditor` to review missing users, states, data, edge cases, constraints, verification surfaces, and applied learning coverage when risk is medium or higher.
+6. Show a preview and get user approval before writing `requirements.md`.
+7. If writing a file, prefer `.threadex/requirements.md` unless the user names another path.
 
 ## Output
 
@@ -52,6 +54,9 @@ Use this requirement shape:
 ## Constraints
 - ...
 
+## Prior Learnings Applied
+- ...
+
 ## Verification
 - Command, file, screenshot, report, or manual check:
 
@@ -66,6 +71,7 @@ Before finalizing, verify that:
 - Outcome states the intended user-visible or operator-visible result.
 - Acceptance criteria are observable and use Given/When/Then where it clarifies behavior.
 - Constraints include non-regression, safety, data, compatibility, and scope limits that matter.
+- Prior Learnings Applied names relevant ledger/doc rules or says none were found after a bounded search.
 - Verification names concrete commands, files, screenshots, reports, or manual checks.
 - Open Decisions contains only unresolved choices that materially affect implementation.
 
@@ -89,6 +95,7 @@ Call `gap-auditor` when the requirements touch authentication, payments, privacy
 ## Gotchas
 
 - Do not create `plan.json` or implementation tasks from this skill.
+- Do not claim automatic BM25 or semantic retrieval. If no retrieval index exists, use simple path, keyword, and tag search.
 - Do not hide uncertainty inside acceptance criteria; put unresolved choices under Open Decisions.
 - Do not write `requirements.md` until the user approves the preview.
 

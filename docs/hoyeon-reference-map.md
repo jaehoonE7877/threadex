@@ -8,10 +8,10 @@ Threadex intentionally references Hoyeon's public repository while keeping its o
 | Requirement-first flow | `clarify -> specify -> goal-draft` |
 | Agent adapters such as code explorer, verifier, reviewer | `plugins/threadex/codex/agents/*.toml` prompt contracts without the Hoyeon prefix |
 | Verification gates before completion | `verify`, `review`, and goal blocked-stop conditions |
-| Learnings compound into later specs | `compound` writes reusable rules, not transcripts |
+| Learnings compound into later specs | `compound` writes structured learning ledgers, report summaries, optional long-term docs, and next-spec defaults |
 | Bash-first Codex adapter and no hooks/MCP in initial slice | Threadex ships no hooks or MCP in the default path |
 
-Threadex does not copy Hoyeon wording verbatim. It keeps the useful architecture shape: clear user intent, explicit requirements, bounded prompt for Codex's built-in `/goal`, independent verification, and small reusable learnings.
+Threadex does not copy Hoyeon wording verbatim. It keeps the useful architecture shape: clear user intent, explicit requirements, bounded prompt for Codex's built-in `/goal`, independent verification, and small reusable learnings that can feed the next `specify` pass.
 
 ## Codex Hook Decision
 
