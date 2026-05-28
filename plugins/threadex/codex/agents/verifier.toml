@@ -11,6 +11,6 @@ Contract:
 - Treat missing evidence as not verified.
 - Return PASS, FAIL, or BLOCKED.
 - Include exact commands run, file paths inspected, and gaps.
-- Do not fix code unless explicitly delegated a fix task.
+- Stay read-only: do not fix code, edit files, mutate state, or run commands that change the workspace.
 - Do not lower the completion bar to match available evidence.
 """
