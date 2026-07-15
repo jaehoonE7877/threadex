@@ -6,7 +6,7 @@ Run static checks first:
 python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
 : "${NEXT_VERSION:?set NEXT_VERSION to the version you are about to publish}"
 THREADEX_RELEASE_VERSION="$NEXT_VERSION" python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
-python3 /Users/jaehoonseo/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py plugins/threadex
+python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" plugins/threadex
 ```
 
 ## Skill Trigger Checks
@@ -15,12 +15,12 @@ After installing Threadex in Codex and starting a new thread, test both explicit
 
 | Skill | Explicit | Natural |
 |---|---|---|
-| `clarify` | `$clarify "add a settings toggle"` | `요구사항이 모호하지 않게 한 질문씩 물어봐줘.` |
-| `specify` | `$specify "dark mode toggle"` | `이 작업을 검증 가능한 요구사항으로 바꿔줘.` |
-| `goal-draft` | `$goal-draft .threadex/requirements.md` | `이 PRD를 Codex /goal 프롬프트로 만들어줘.` |
-| `verify` | `$verify "is this done?"` | `완료됐다는 주장을 증거로 검증해줘.` |
-| `review` | `$review` | `이 diff에 ship blocker가 있는지 리뷰해줘.` |
-| `compound` | `$compound` | `이번 실행에서 다음에 재사용할 교훈을 정리해줘.` |
+| `clarify` | `$threadex:clarify "add a settings toggle"` | `요구사항이 모호하지 않게 한 질문씩 물어봐줘.` |
+| `specify` | `$threadex:specify "dark mode toggle"` | `이 작업을 검증 가능한 요구사항으로 바꿔줘.` |
+| `goal-draft` | `$threadex:goal-draft .threadex/requirements.md` | `이 PRD를 Codex /goal 프롬프트로 만들어줘.` |
+| `verify` | `$threadex:verify "is this done?"` | `완료됐다는 주장을 증거로 검증해줘.` |
+| `review` | `$threadex:review` | `이 diff에 ship blocker가 있는지 리뷰해줘.` |
+| `compound` | `$threadex:compound` | `이번 실행에서 다음에 재사용할 교훈을 정리해줘.` |
 
 Expected result: Codex loads the matching skill, follows the skill body, and does not rely only on the description.
 
@@ -35,7 +35,7 @@ Spawn code-reviewer to review the current diff. It must lead with findings and n
 ```
 
 Static validation also checks that every Threadex adapter is configured with a
-read-only sandbox and the intended model for its task class.
+read-only sandbox and the intended model and reasoning effort for its task class.
 
 If custom adapter names from `plugins/threadex/codex/agents/*.toml` are not available in the current Codex runtime, spawn the closest native role and pass the relevant adapter contract as task context. Record that as a runtime limitation, not a plugin success.
 
@@ -43,7 +43,7 @@ Evidence from repository checks proves that the contracts and routing prompts ex
 
 ## Skill-to-Subagent Routing Checks
 
-For each skill, ask it to state which subagent it would use and why before delegating:
+For each skill, give it a task that needs the route below and inspect the resulting delegation:
 
 | Skill | Required route |
 |---|---|
@@ -55,13 +55,23 @@ For each skill, ask it to state which subagent it would use and why before deleg
 
 Pass criteria:
 
-- The skill names the expected subagent.
+- The skill uses the expected subagent when delegation materially helps.
 - The subagent receives a bounded task.
 - The subagent follows its contract.
 - The parent skill integrates the result without pretending weak evidence is complete.
-- `clarify` shows decision progress and hands off to `specify` instead of writing requirements or implementation artifacts.
+- `clarify` shows decision progress and hands off to `specify` or `goal-draft` instead of writing requirements or implementation artifacts.
 - `specify` separates blocking Open Decisions from non-blocking defaults before handoff.
 - `compound` chooses human learning doc paths from local naming conventions when visible.
+
+## GPT-5.6 Prompt Regression Check
+
+When changing a prompt contract, compare the same representative task in this order:
+
+1. Current Threadex prompt with the previous model.
+2. Current Threadex prompt with GPT-5.6 and the same reasoning effort.
+3. Refactored prompt with GPT-5.6 and the same reasoning effort.
+
+Change only one variable at a time. Record whether the result met the requested outcome, cited enough evidence, respected the authorized scope, and kept `BLOCKED` distinct from completion. Prefer the lowest reasoning effort that remains reliable for that task class.
 
 ## Known Gap
 
