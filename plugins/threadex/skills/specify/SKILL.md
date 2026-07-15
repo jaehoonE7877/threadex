@@ -1,48 +1,46 @@
 ---
 name: specify
-description: Use when the user wants a request, clarified idea, bug, or feature turned into verifiable requirements, PRD, acceptance criteria, or requirements.md before Codex implementation; includes "spec", "PRD", "requirements", "acceptance criteria", "요구사항", and "기획서".
+description: Use when a clear request needs verifiable requirements, acceptance criteria, a PRD, or requirements.md before implementation.
 ---
 
 # Specify
 
-## Purpose
+## Outcome
 
-Turn clarified intent into requirements that an agent can verify. Preserve Threadex's thin path: enough structure for correctness, not a full planning bureaucracy.
+Produce the smallest requirement set that makes implementation and verification defensible. Requirements describe observable behavior, preserve explicit user values, expose unresolved decisions, and avoid turning the handoff into a planning bureaucracy.
 
 ## Use When
 
-- The user wants a request, clarified idea, bug, or feature turned into requirements, PRD, acceptance criteria, or `requirements.md`.
-- There is enough intent to define observable behavior, constraints, and verification without another blocking clarification round.
-- Codex needs a requirements artifact before implementation or `/goal` handoff.
+- The user asks for requirements, a PRD, acceptance criteria, or `requirements.md`.
+- The request is clear enough to define behavior, constraints, and verification.
+- Codex needs an implementation or `goal-draft` contract.
 
-## Do Not Use When
-
-- The request is still missing a blocking goal, user, state, constraint, or verification decision; hand back to `clarify`.
-- The user asked for code review, completion verification, or retrospective learnings.
-- The user wants implementation to start immediately and already provided an acceptable requirements artifact.
+Return to `clarify` when one material user decision still changes the requirement set. Skip this skill for review, completion verification, retrospective learning, or implementation that already has an adequate requirements artifact.
 
 ## Inputs
 
-- Clarified intent, Q&A notes, or a user request clear enough to specify.
-- Relevant repo evidence, docs, tests, design conventions, or existing behavior when project context matters.
-- Relevant prior learnings from `.threadex/learnings/index.json` first, then `.threadex/learnings/ledger.json` or linked `docs/learnings/*.md` only when the index summary is not enough.
-- Any required output path; otherwise prefer `.threadex/requirements.md` only when writing is approved.
+- The clarified request and any Q&A.
+- Project evidence, existing behavior, tests, design conventions, and repository instructions.
+- `.threadex/learnings/index.json` entries that match by keyword, tag, or `applies_when`.
+- A user-named output path, or `.threadex/requirements.md` when the request authorizes a requirements file but does not name one.
 
-## Workflow
+## Tool Routing
 
-1. Confirm the input is clear enough. If not, hand back to `clarify`.
-2. Inspect repo evidence through `code-explorer` and `docs-researcher` when project context matters.
-3. Search `.threadex/learnings/index.json` by keyword, tags, and `applies_when` when the request overlaps past work. Apply only relevant rules.
-4. Open `.threadex/learnings/ledger.json` or the linked `human_doc` only when the index entry is ambiguous, disputed, or too short for the requirement decision.
-5. Draft requirements as behavior-first bullets with acceptance evidence.
-6. Ask `gap-auditor` to review missing users, states, data, edge cases, constraints, verification surfaces, and applied learning coverage when risk is medium or higher.
-7. Split `Open Decisions` into `Blocking` and `Non-blocking defaults` before `goal-draft` or implementation handoff.
-8. Show a preview and get user approval before writing `requirements.md`.
-9. If writing a file, prefer `.threadex/requirements.md` unless the user names another path.
+- Use `code-explorer` and `docs-researcher` for bounded project evidence; parallelize independent reads.
+- Use `gap-auditor` when risk is medium or higher, especially for auth, payments, privacy, destructive actions, migrations, public APIs, cross-platform UI, releases, or multi-module changes.
+- Open `.threadex/learnings/ledger.json` or a linked `human_doc` only when the compact index rule is ambiguous, disputed, or insufficient.
+
+## Decision Rules
+
+1. If a material blocker remains, return the blocker and one next question; do not write or hand off requirements.
+2. Preserve user-provided values, paths, commands, ordering, thresholds, and output formats verbatim unless they conflict; surface conflicts instead of silently normalizing them.
+3. Write behavior-first requirements and pair each material acceptance criterion with observable evidence.
+4. Include only constraints that protect behavior, compatibility, data, safety, or explicit scope.
+5. Record relevant prior learning rules, or state that a bounded index search found none.
+6. Separate `Open Decisions` into `Blocking` and `Non-blocking defaults`.
+7. If the current request explicitly asks to create a requirements file, write it and validate the result without requesting duplicate approval. Otherwise return the requirements in the response; ask only when file intent or path is materially ambiguous.
 
 ## Output
-
-Use this requirement shape:
 
 ```text
 # Requirements
@@ -70,43 +68,18 @@ Use this requirement shape:
 - ...
 ```
 
-## Quality Checklist
+Omit empty optional sections except `Open Decisions`, where `None` makes the handoff state explicit.
 
-Before finalizing, verify that:
+## Boundaries
 
-- Outcome states the intended user-visible or operator-visible result.
-- Acceptance criteria are observable and use Given/When/Then where it clarifies behavior.
-- Constraints include non-regression, safety, data, compatibility, and scope limits that matter.
-- Prior Learnings Applied names relevant AI index rules or says none were found after a bounded search.
-- Verification names concrete commands, files, screenshots, reports, or manual checks.
-- Open Decisions separates blockers from defaultable choices before `goal-draft` or implementation.
-- Blocking decisions are the only unresolved choices that materially affect implementation.
-- Non-blocking defaults name the assumption that can be carried forward if the user does not override it.
+- Do not create implementation tasks, `plan.json`, code, or unrelated files.
+- Do not claim semantic or BM25 retrieval; learning lookup is a bounded keyword, tag, path, and `applies_when` search.
+- Do not scan every human learning document by default.
+- Do not hide uncertainty inside acceptance criteria or pass unresolved blockers to implementation or `goal-draft`.
 
-## Risk Triggers
+## Stop Conditions
 
-Call `gap-auditor` when the requirements touch authentication, payments, privacy, destructive actions, migrations, public API behavior, cross-platform UI, release flow, or multiple modules.
+- Complete when every material outcome has observable acceptance evidence, constraints preserve the required behavior, and no blocking decision remains.
+- If a required fact or decision cannot be obtained, stop with the exact blocker and smallest next input.
 
-## Subagent Handoff
-
-- `code-explorer`: discover source files, tests, existing patterns, and likely blast radius for a bounded area.
-- `docs-researcher`: find project rules, design conventions, release rules, or workflow docs.
-- `gap-auditor`: independently decide whether the requirement set is sufficient or needs more questions; include the specific missing requirement if not sufficient.
-
-## Examples
-
-- Positive: "이 clarified summary를 요구사항으로 바꿔줘" -> produce the requirement shape and ask before writing a file.
-- Positive: "이 버그 수정 acceptance criteria 작성해줘" -> include expected behavior, edge cases, and verification.
-- Negative: "이 PR 리뷰해줘" -> use `review`.
-- Negative: "이게 완료됐는지 확인해줘" -> use `verify`.
-
-## Gotchas
-
-- Do not create `plan.json` or implementation tasks from this skill.
-- Do not claim automatic BM25 or semantic retrieval. Use `.threadex/learnings/index.json` for simple keyword, tag, and `applies_when` search.
-- Do not scan every `docs/learnings/*.md` by default; open only a linked human doc when the AI index entry is insufficient.
-- Do not hide uncertainty inside acceptance criteria; put unresolved choices under Open Decisions.
-- Do not pass unresolved blockers to `goal-draft` as if they were settled requirements.
-- Do not write `requirements.md` until the user approves the preview.
-
-Do not create `plan.json`, mutate unrelated files, or start implementation from this skill.
+Before finalizing, confirm that narrow checks are not being used to claim broad coverage and that any written file matches the returned requirement contract.

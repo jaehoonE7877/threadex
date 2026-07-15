@@ -20,8 +20,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Threadex",
-    "shortDescription": "Thread intent into verified Codex goals.",
-    "longDescription": "Threadex is a thin Codex harness for clarifying intent, drafting verifiable requirements, preparing compact prompts for Codex's built-in /goal feature, verifying agent output, and preserving useful learnings.",
+    "shortDescription": "Thread intent into evidence-backed Codex goals.",
+    "longDescription": "Threadex is a thin Codex harness for clarifying material ambiguity, drafting verifiable requirements, preparing outcome-first prompts with explicit constraints and completion evidence for Codex's built-in /goal feature, auditing agent results, and preserving reusable learnings.",
     "developerName": "jaehoonE7877",
     "category": "Developer Tools",
     "capabilities": [
@@ -31,9 +31,9 @@
     ],
     "websiteURL": "https://github.com/jaehoonE7877/threadex",
     "defaultPrompt": [
-      "Use Threadex to clarify this request and prepare a verified prompt for Codex /goal.",
-      "Use Threadex to write requirements before Codex starts implementation.",
-      "Use Threadex to verify whether this agent result is actually complete."
+      "Use Threadex to resolve material ambiguity and prepare an evidence-checkable prompt for Codex /goal.",
+      "Use Threadex to write verifiable requirements while preserving the values and checks I supplied.",
+      "Use Threadex to map every requirement to current evidence and determine whether this result is complete."
     ],
     "brandColor": "#6C5CFF",
     "composerIcon": "./assets/threadex-icon.png",

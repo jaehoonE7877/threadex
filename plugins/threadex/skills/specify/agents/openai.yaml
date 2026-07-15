@@ -1,6 +1,6 @@
 interface:
   display_name: "Specify"
   short_description: "Draft verifiable requirements before implementation"
-  default_prompt: "Use $specify to turn this clarified request into requirements.md."
+  default_prompt: "Use $threadex:specify to turn this request into verifiable requirements.md while preserving my stated values and checks."
 policy:
   allow_implicit_invocation: true

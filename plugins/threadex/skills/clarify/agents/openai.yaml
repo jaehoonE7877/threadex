@@ -1,6 +1,6 @@
 interface:
   display_name: "Clarify"
   short_description: "Resolve ambiguity before specs, goals, or code"
-  default_prompt: "Use $clarify to ask one question at a time until my request is clear."
+  default_prompt: "Use $threadex:clarify to ask one material question at a time and stop when the request is sufficient for a requirements or goal handoff."
 policy:
   allow_implicit_invocation: true

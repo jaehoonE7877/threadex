@@ -34,9 +34,9 @@ source: {SOURCE}
 
 {Requirements, constraints, or verification defaults to carry into future specify runs.}
 
-## AI Index Entry
+## Applies When
 
-{Compact rule, tags, applies_when triggers, and human_doc path to keep in .threadex/learnings/index.json.}
+{The narrow situations where this rule should influence future work.}
 
 ## Related
 

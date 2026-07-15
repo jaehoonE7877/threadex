@@ -1,6 +1,6 @@
 interface:
   display_name: "Compound"
   short_description: "Capture reusable learnings from Codex runs"
-  default_prompt: "Use $compound to preserve the useful learnings from this run."
+  default_prompt: "Use $threadex:compound to extract evidence-backed reusable learnings from this run and persist them only when authorized."
 policy:
   allow_implicit_invocation: true
