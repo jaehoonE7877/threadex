@@ -1,4 +1,6 @@
 interface:
   display_name: "Goal Draft"
   short_description: "Draft evidence-checked Codex /goal prompts"
-  default_prompt: "Use $goal-draft to turn these requirements into a Codex /goal prompt under 4000 characters."
+  default_prompt: "Use $threadex:goal-draft to turn this work into a Codex /goal prompt with explicit success evidence and blocked behavior."
+policy:
+  allow_implicit_invocation: true

@@ -25,9 +25,9 @@ Use this when tightening a near-complete `/goal` or when a draft is too long, pr
    - A goal is a work loop, not a style prompt.
    - Remove "carefully", "thoroughly", "as a senior engineer", "make sure", and similar filler.
 
-6. **Bias to action with logged assumptions**
-   - Prefer "make a reasonable assumption and log it" for low-risk ambiguity.
-   - Stop only for missing access, approval-sensitive actions, unavailable verification, or no defensible path.
+6. **Bias to action with material assumptions**
+   - Make reasonable low-risk assumptions internally and expose them only when they affect review.
+   - Stop for missing access, still-unapproved side effects, unavailable verification, or no defensible path.
 
 ## Rewrite Moves
 

@@ -27,7 +27,7 @@ Use this before returning a draft when the request is ambiguous, high-risk, or t
 
 - Names allowed repositories, directories, files, tools, docs, tickets, or external systems when available.
 - Narrows large repo work enough to audit without blocking discovery.
-- Calls out approval-sensitive actions: publish, merge, delete, message users, production changes.
+- Distinguishes approval-sensitive actions already authorized by the request from publish, merge, delete, messaging, production, or other actions that still require confirmation.
 - Avoids invented paths, commands, ticket IDs, thresholds, dates, or owners.
 
 ## Iteration Policy
@@ -48,7 +48,7 @@ Use this before returning a draft when the request is ambiguous, high-risk, or t
 
 - Starts with the end state.
 - Keeps the submitted `/goal` block within 4000 characters, counting `/goal`, line breaks, bullets, and inline commands.
-- Keeps normal goals roughly 80-160 words; complex goals can be longer if every clause earns its place.
+- Keeps only clauses that change outcome, evidence, constraints, authorized scope, work policy, or blocked behavior.
 - Removes filler: "please", "carefully", "make sure", "be thorough", persona, tone, motivational text.
 - Does not add a Korean rationale when the user asked only for the prompt.
 - Adds assumptions only when they materially affect review.

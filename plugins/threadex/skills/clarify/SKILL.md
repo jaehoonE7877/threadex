@@ -1,101 +1,75 @@
 ---
 name: clarify
-description: Use when the user wants ambiguous requirements, product ideas, bug reports, plans, or implementation requests clarified before writing specs, goals, or code; includes "clarify", "ask questions", "remove ambiguity", "모호", "명확", "질문해줘", and "요구사항 정리".
+description: Use when an ambiguous request needs material decisions clarified before requirements, a durable goal, or implementation.
 ---
 
 # Clarify
 
-## Purpose
+## Outcome
 
-Run a one-question-at-a-time ambiguity loop before requirements or implementation. Keep it lightweight: discover what matters, use repo evidence when available, and stop once the next artifact is defensible.
+Resolve only the ambiguity that blocks a defensible next artifact. Use available project evidence before asking the user, ask one material question at a time, and stop when the request is sufficient for `specify` or `goal-draft`.
 
 ## Use When
 
-- The user asks to clarify, remove ambiguity, ask questions, or organize an unclear request before specs, goals, or code.
-- A product idea, bug report, implementation request, or plan is missing blocking decisions about goal, non-goals, constraints, users, scope, or verification.
-- Repo code or docs can answer part of the ambiguity, but at least one decision still needs to be surfaced to the user.
+- The user asks to clarify, remove ambiguity, ask questions, or organize an unclear product idea, bug, plan, or implementation request.
+- A missing decision about outcome, non-goals, users, scope, constraints, or verification would materially change the next artifact.
 
-## Do Not Use When
-
-- The user asked for implementation, code review, completion verification, or learnings capture as the primary task.
-- The request is already clear enough to draft requirements; hand off to `specify` instead.
-- The user asked a direct factual question that can be answered from code or docs without an ambiguity loop.
+Skip this skill when the request is already actionable, asks for implementation or review, or can be answered directly from code or docs.
 
 ## Inputs
 
-- The user's current request and any prior Q&A in the thread.
-- Optional repo evidence from source files, docs, tests, runbooks, or existing behavior.
-- Any explicit non-goals, deadlines, output format, or verification surface already named by the user.
+- The current request and prior answers.
+- Explicit user values, non-goals, deadlines, output requirements, and verification surfaces.
+- Cheaply available evidence from source, tests, README, AGENTS, runbooks, or existing behavior.
 
-## Workflow
+## Tool Routing
 
-1. Mirror the current understanding: goal, non-goals, known facts, unknowns.
-2. Use `code-explorer` or `docs-researcher` when local code or docs can answer better than the user.
-3. Ask exactly one blocking question at a time.
-4. Keep a compact Q&A log in the conversation, or write `.threadex/clarify/qa-log.md` only if the user wants a durable artifact.
-5. Show `Decision progress` after each answer: decisions locked, remaining decision axes, and the next blocking question.
-6. At audit points, ask `gap-auditor` to decide `CONTINUE` or `SUFFICIENT`.
-7. When the request is usable but could be refined further, show a `Sufficient for specify` checkpoint instead of continuing by default.
-8. Hand off to `specify` only after the user confirms the clarified summary.
+- Use `code-explorer` for a bounded read-only question about source, tests, fixtures, or behavior.
+- Use `docs-researcher` for a bounded read-only question about project rules or documentation.
+- Run independent evidence reads in parallel. Use `gap-auditor` only when a fresh audit can decide whether material ambiguity remains.
+- If subagents are unavailable, perform the smallest direct read-only pass and label that fallback.
 
-## Boundary
+## Decision Rules
 
-Clarify is a handoff skill, not an artifact-writing skill.
+1. Preserve the user's stated values and separate known facts from material unknowns.
+2. Answer repo-discoverable questions from evidence instead of asking the user.
+3. Ask exactly one question when its answer changes implementation, verification, safety, or scope. Carry harmless ambiguity as an explicit default.
+4. Show `Decision progress` only when a decision axis changes or the request reaches a handoff checkpoint; do not repeat it after routine answers.
+5. When no material blocker remains:
+   - continue to the requested next skill if the user already authorized the larger flow;
+   - otherwise return the clarified handoff and stop.
 
-- Do not draft requirements, implementation plans, code, ADRs, README edits, or other deliverables from this skill.
-- If the user asks to write an artifact during clarification, first return the clarified summary and mark `Ready for: specify` or `Ready for: goal-draft`.
-- A durable Q&A log is allowed only when the user explicitly asks for a saved clarification record.
-- The next skill may write artifacts after its own preview/approval rules are satisfied.
+## Boundaries
 
-## Subagent Handoff
-
-- `code-explorer`: use for a bounded read-only question about source patterns, affected files, tests, or existing behavior.
-- `docs-researcher`: use for a bounded read-only question about README, AGENTS, ADRs, runbooks, product notes, or conventions.
-- `gap-auditor`: use after the initial mirror or before handoff to decide `CONTINUE` or `SUFFICIENT`, and to propose the next single blocking question.
-
-Spawn subagents only when they can answer a bounded question in parallel. If subagents are unavailable, do the smallest direct read-only pass and label the fallback.
-
-## Examples
-
-- Positive: "이 요구사항 모호한 부분 질문해줘" -> mirror knowns/unknowns and ask one blocking question.
-- Positive: "이 버그 리포트 구현 전에 명확하게 해줘" -> inspect likely code/docs if useful, then clarify missing reproduction or expected behavior.
-- Negative: "이 diff 리뷰해줘" -> use `review`, not `clarify`.
-- Negative: "이 작업 완료됐는지 검증해줘" -> use `verify`, not `clarify`.
+- Do not draft requirements, plans, code, ADRs, or documentation from `clarify`; hand those artifacts to the appropriate next workflow.
+- Write `.threadex/clarify/qa-log.md` only when the user explicitly requests a durable clarification record.
+- Do not continue asking about interesting but non-blocking uncertainty.
 
 ## Output
 
-Return either the next question or this summary:
+While blocked, return only the next short question, plus a recommended default when useful.
+
+At handoff, omit empty fields and return:
 
 ```text
 Decision progress:
-- Locked decisions: 0/0
-- Remaining decision axes:
+- Locked decisions:
+- Remaining material decisions:
 - Sufficient for specify: yes | no
 
 Clarified intent:
-- Goal:
+- Outcome:
 - Non-goals:
-- Decisions:
-- Open questions:
+- Constraints:
+- Verification:
+- Assumptions:
 - Ready for: specify | goal-draft | blocked
 ```
 
-## Validation Checklist
+## Stop Conditions
 
-Before returning a summary, check that:
+- `specify`: observable behavior and verification can be written without another material decision.
+- `goal-draft`: the durable outcome, evidence, boundaries, and blocked behavior are defensible.
+- `blocked`: required access or a user-owned decision prevents either handoff; name the missing input precisely.
 
-- Goal and non-goals are separated.
-- Decisions are concrete enough for `specify` or `goal-draft`.
-- Open questions list only material blockers.
-- `Ready for` is exactly one of `specify`, `goal-draft`, or `blocked`.
-- No requirements, implementation plan, code, ADR content, README edits, or other deliverables were drafted inside `clarify`.
-- Any artifact request was converted into an explicit handoff target instead of being executed by `clarify`.
-
-## Gotchas
-
-- Do not ask the user for facts that the repo can answer cheaply.
-- Do not batch multiple blocking questions into one turn.
-- Do not treat "interesting but non-blocking" uncertainty as a reason to continue clarifying.
-- Do not turn a long one-question loop into hidden planning. Use progress and the sufficient-for-specify checkpoint to keep the user oriented.
-
-Do not write requirements, implementation plans, code, ADRs, README edits, or other deliverables from this skill. Return the clarified handoff target instead.
+Before returning, confirm that no repo-answerable question was sent to the user and that the next step is supported by the evidence gathered.

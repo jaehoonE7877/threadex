@@ -2,94 +2,149 @@
   "skills": [
     {
       "name": "clarify",
-      "explicit": "$clarify \"add a settings toggle\"",
-      "natural": "요구사항이 모호하지 않게 한 질문씩 물어봐줘.",
+      "explicit": "$threadex:clarify \"add a settings toggle\"",
+      "natural": "요구사항이 모호하지 않게 필요한 질문만 한 번에 하나씩 물어봐줘.",
       "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "next question or clarified summary with decision progress and a specify handoff checkpoint"
+      "expected_output": "one material question or a clarified handoff with sparse decision progress",
+      "required_terms": [
+        "## Outcome",
+        "Decision progress",
+        "Sufficient for specify",
+        "Do not draft requirements",
+        "## Stop Conditions"
+      ]
     },
     {
       "name": "specify",
-      "explicit": "$specify \"dark mode toggle\"",
+      "explicit": "$threadex:specify \"dark mode toggle\"",
       "natural": "이 작업을 검증 가능한 요구사항으로 바꿔줘.",
       "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "requirements preview or requirements.md with relevant prior learnings applied and Open Decisions split into blocking choices and non-blocking defaults"
+      "expected_output": "verifiable requirements with preserved user values and blocking decisions separated from defaults",
+      "required_terms": [
+        "## Outcome",
+        "## Acceptance Criteria",
+        "Prior Learnings Applied",
+        "Blocking",
+        "Non-blocking defaults",
+        ".threadex/learnings/index.json",
+        "## Stop Conditions"
+      ]
     },
     {
       "name": "goal-draft",
-      "explicit": "$goal-draft .threadex/requirements.md",
+      "explicit": "$threadex:goal-draft .threadex/requirements.md",
       "natural": "이 PRD를 Codex /goal 프롬프트로 만들어줘.",
       "expected_agents": [],
-      "expected_output": "paste-ready prompt for Codex's built-in /goal under 4000 characters"
+      "expected_output": "paste-ready /goal prompt under 4000 characters with success evidence and blocked behavior separated",
+      "required_terms": [
+        "Six-Slot Contract",
+        "Success evidence",
+        "Blocked stop condition",
+        "Do not mark this goal complete",
+        "4000",
+        "references/domain_defaults.md",
+        "references/slot_checklist.md",
+        "references/style_overlay.md"
+      ]
     },
     {
       "name": "verify",
-      "explicit": "$verify \"is this done?\"",
-      "natural": "완료됐다는 주장을 증거로 검증해줘.",
+      "explicit": "$threadex:verify \"is this done?\"",
+      "natural": "완료됐다는 주장을 요구사항별 증거로 검증해줘.",
       "expected_agents": ["verifier"],
-      "expected_output": "PASS, FAIL, or BLOCKED with evidence"
+      "expected_output": "PASS, FAIL, or BLOCKED with a requirement-to-evidence mapping",
+      "required_terms": [
+        "Requirement evidence",
+        "`PASS`",
+        "`FAIL`",
+        "`BLOCKED`",
+        "every remaining material requirement",
+        "## Stop Conditions"
+      ]
     },
     {
       "name": "review",
-      "explicit": "$review",
+      "explicit": "$threadex:review",
       "natural": "이 diff에 ship blocker가 있는지 리뷰해줘.",
       "expected_agents": ["code-reviewer"],
-      "expected_output": "severity-ordered findings or residual risk"
+      "expected_output": "severity-ordered findings or no findings with residual risk and unrun tests",
+      "required_terms": [
+        "Findings:",
+        "Open questions:",
+        "Residual risk:",
+        "No findings",
+        "## Stop Conditions"
+      ]
     },
     {
       "name": "compound",
-      "explicit": "$compound",
-      "natural": "이번 실행에서 다음에 재사용할 교훈을 정리해줘.",
+      "explicit": "$threadex:compound",
+      "natural": "이번 실행에서 다음에 재사용할 근거 있는 교훈을 정리해줘.",
       "expected_agents": ["docs-researcher"],
-      "expected_output": "raw ledger entry, AI index update, report summary, local-convention-aware human doc target, and next specify defaults"
+      "expected_output": "reusable learning summary or authorized ledger/index updates without empty artifacts",
+      "required_terms": [
+        ".threadex/learnings/ledger.json",
+        ".threadex/learnings/index.json",
+        "persistence-schema.md",
+        "Explicit `$threadex:compound`",
+        "No reusable learning found",
+        "Next specify defaults",
+        "## Stop Conditions"
+      ]
     }
   ],
   "subagents": [
     {
       "name": "code-explorer",
-      "spawn_smoke": "Ask for a read-only search of relevant files and expect no edits; adapter should use a read-only sandbox."
+      "spawn_smoke": "Ask for a bounded read-only source search and expect evidence with no edits.",
+      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
     },
     {
       "name": "docs-researcher",
-      "spawn_smoke": "Ask for README/AGENTS/docs references and expect file:line evidence; adapter should use a read-only sandbox."
+      "spawn_smoke": "Ask for authoritative project guidance and expect sourced facts, inference, and gaps.",
+      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
     },
     {
       "name": "gap-auditor",
-      "spawn_smoke": "Pass a short Q&A log and expect CONTINUE or SUFFICIENT; adapter should use a read-only sandbox."
+      "spawn_smoke": "Pass a short draft and expect SUFFICIENT or CONTINUE with exactly one material question.",
+      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
     },
     {
       "name": "verifier",
-      "spawn_smoke": "Ask to verify a concrete claim and expect PASS/FAIL/BLOCKED evidence; adapter should use a read-only sandbox."
+      "spawn_smoke": "Ask to verify a scoped claim and expect requirement-level PASS, FAIL, or BLOCKED evidence.",
+      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
     },
     {
       "name": "code-reviewer",
-      "spawn_smoke": "Ask to review a diff and expect severity-ordered findings; adapter should use a read-only sandbox."
+      "spawn_smoke": "Ask to review a diff and expect evidence-backed findings or explicit residual risk.",
+      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
     }
   ],
   "routing": [
     {
       "skill": "clarify",
       "agent": "gap-auditor",
-      "handoff": "audit whether enough ambiguity has been resolved"
+      "handoff": "audit whether material ambiguity still blocks a requirements or goal handoff"
     },
     {
       "skill": "specify",
       "agent": "gap-auditor",
-      "handoff": "audit whether requirements cover users, states, edge cases, constraints, and verification"
+      "handoff": "audit users, states, edge cases, constraints, verification, and blocking decisions"
     },
     {
       "skill": "verify",
       "agent": "verifier",
-      "handoff": "run the independent completion audit"
+      "handoff": "independently map material requirements to current evidence"
     },
     {
       "skill": "review",
       "agent": "code-reviewer",
-      "handoff": "run independent bug/regression review"
+      "handoff": "independently inspect the review surface for behavior risks and test gaps"
     },
     {
       "skill": "compound",
       "agent": "docs-researcher",
-      "handoff": "find the raw learning ledger, AI index, related human docs, and the persistence target"
+      "handoff": "find authoritative learning stores, related human docs, and local naming rules"
     }
   ]
 }

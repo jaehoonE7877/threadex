@@ -1,59 +1,51 @@
 ---
 name: verify
-description: Use when the user asks whether work is done, correct, complete, ready to ship, release-ready, or satisfies requirements; includes "verify", "validate", "done?", "검증", "완료됐는지", "통과", and "출시 가능".
+description: Use when a completion, correctness, release-readiness, or requirement-satisfaction claim needs an evidence-based verdict.
 ---
 
 # Verify
 
-## Purpose
+## Outcome
 
-Check completion claims against evidence. Missing evidence means not verified.
+Prove or disprove the scoped completion claim with current evidence. Missing or indirect evidence is not proof, and a narrow check cannot establish broad completion.
 
 ## Use When
 
 - The user asks whether work is done, correct, complete, release-ready, or satisfies requirements.
-- There is a claim to compare against requirements, `/goal`, acceptance criteria, tests, docs, screenshots, or command output.
-- The task is to prove or disprove completion, not to fix the implementation.
+- A claim can be compared with a goal, PRD, issue, acceptance criteria, test, artifact, or documented contract.
 
-## Do Not Use When
-
-- The user asks for code review before shipping; use `review`.
-- The user asks to write requirements or acceptance criteria; use `specify`.
-- The user asks to preserve learnings from a completed run; use `compound`.
-- The user asks to implement fixes immediately; complete verification first unless they explicitly waive it.
+Use `review` for defect discovery without a completion claim. Use `specify` to create requirements. If the user requested verify-and-fix, establish the verdict first, then hand failures to the separately authorized fix workflow.
 
 ## Inputs
 
-- The completion claim and the requirement, goal, PRD, issue, or acceptance criteria it should satisfy.
-- Concrete evidence such as files, diffs, tests, command output, screenshots, docs, CI status, or release artifacts.
-- Any allowed verification commands or constraints on what may be run.
+- The claim and every material requirement it should satisfy.
+- Current files, diffs, tests, command output, screenshots, docs, CI status, or release artifacts.
+- Commands and side-effect boundaries allowed for verification.
 
-## Workflow
+## Tool Routing
 
-1. Identify the claim and the requirement or goal it should satisfy.
-2. Ask `verifier` to inspect concrete evidence when the check is non-trivial.
-3. Inspect files, commands, tests, screenshots, or docs that directly prove or disprove the claim.
-4. Report `PASS`, `FAIL`, or `BLOCKED`.
-5. Do not fix code unless the user explicitly delegates a fix.
+- Inspect direct evidence locally when the claim is small and bounded.
+- Use `verifier` for non-trivial, release, multi-file, or high-cost claims. Pass the claim, requirements, evidence paths or commands, and allowed boundary.
 
 ## Verdict Rules
 
-- `PASS`: evidence directly proves every material requirement in scope.
-- `FAIL`: evidence contradicts the claim or shows a missing requirement.
-- `BLOCKED`: required evidence is unavailable, verification cannot run, or an external dependency prevents a fair check.
+- `PASS`: current evidence directly proves every material requirement in scope.
+- `FAIL`: evidence contradicts the claim or proves a requirement is incomplete.
+- `BLOCKED`: required evidence cannot be obtained or a dependency prevents a fair check.
 
-## Subagent Handoff
-
-- `verifier`: use for non-trivial claims, release readiness, multi-file work, or any check where an independent evidence audit is likely to catch gaps.
-- Pass the verifier the claim, requirements, evidence paths or commands, and the allowed verification boundary.
+Do not convert `BLOCKED` into `PASS`, and do not lower the completion bar to fit the available evidence.
 
 ## Output
+
+For multiple requirements, include one row per requirement:
 
 ```text
 Verdict: PASS | FAIL | BLOCKED
 
-Evidence:
-- ...
+Requirement evidence:
+- Requirement:
+  Evidence:
+  Result: PASS | FAIL | BLOCKED
 
 Gaps:
 - ...
@@ -62,25 +54,16 @@ Next action:
 - ...
 ```
 
-## Validation Checklist
+Lead with the verdict. Include exact commands, paths, lines, screenshots, or artifact identifiers that support each result.
 
-Before finalizing, check that:
+## Boundaries
 
-- The claim and requirement are explicitly named.
-- Evidence is direct, current, and scoped to the requirement.
-- Narrow checks are not used to prove broad completion.
-- Missing or weak evidence is treated as not verified.
-- Next action is either the smallest fix direction, the missing evidence, or the exact blocker.
+- Verification-only requests stay read-only and do not fix code or mutate external state.
+- Green tests are evidence only for behavior they actually cover.
+- Output from another branch, commit, or earlier run is stale unless current state proves it still applies.
 
-## Examples
+## Stop Conditions
 
-- Positive: "이 작업 완료됐는지 검증해줘" -> map the claim to requirements and return PASS/FAIL/BLOCKED.
-- Positive: "릴리즈 가능한 상태인지 봐줘" -> inspect release gates and current evidence.
-- Negative: "이 PR 버그 있는지 리뷰해줘" -> use `review`.
-- Negative: "이 실패를 고쳐줘" -> implement outside this skill after verification.
-
-## Gotchas
-
-- Do not mark `PASS` because no issue was found; require affirmative evidence.
-- Do not fix code during verification unless the user explicitly delegates a fix.
-- Do not treat stale command output from an earlier branch or commit as current evidence.
+- Stop with `PASS` only when all scoped requirements have affirmative evidence.
+- Stop with `FAIL` after a material contradiction is established and every remaining material requirement is mapped to current evidence or a precise evidence gap.
+- Stop with `BLOCKED` when the missing evidence or access is named precisely and no safe in-scope fallback remains.

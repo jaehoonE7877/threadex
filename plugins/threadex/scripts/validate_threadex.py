@@ -20,49 +20,28 @@ REQUIRED_AGENTS = [
     "verifier",
     "code-reviewer",
 ]
-EXPECTED_AGENT_MODELS = {
-    "code-explorer": "gpt-5.4-mini",
-    "docs-researcher": "gpt-5.4-mini",
-    "gap-auditor": "gpt-5.5",
-    "verifier": "gpt-5.5",
-    "code-reviewer": "gpt-5.5",
+EXPECTED_AGENT_CONFIGS = {
+    "code-explorer": {"model": "gpt-5.6-terra", "effort": "low"},
+    "docs-researcher": {"model": "gpt-5.6-terra", "effort": "low"},
+    "gap-auditor": {"model": "gpt-5.6", "effort": "high"},
+    "verifier": {"model": "gpt-5.6", "effort": "high"},
+    "code-reviewer": {"model": "gpt-5.6", "effort": "high"},
 }
-COMPOUND_REQUIRED_TERMS = [
-    ".threadex/learnings/ledger.json",
-    ".threadex/learnings/index.json",
-    "docs/learnings/{YYYY-MM-DD}-{short-title}.md",
-    "source",
-    "human_doc",
-    "problem",
-    "cause",
-    "rule",
-    "evidence",
-    "tags",
-    "created_at",
-    "Next specify defaults",
-]
-SPECIFY_REQUIRED_LEARNING_TERMS = [
-    ".threadex/learnings/index.json",
-    ".threadex/learnings/ledger.json",
-    "human_doc",
-    "Prior Learnings Applied",
-]
-CLARIFY_REQUIRED_BOUNDARY_TERMS = [
-    "Decision progress",
-    "remaining decision axes",
-    "Sufficient for specify",
-    "Do not draft requirements",
-]
-SPECIFY_REQUIRED_OPEN_DECISION_TERMS = [
-    "Blocking",
-    "Non-blocking defaults",
-    "before `goal-draft` or implementation",
-]
-COMPOUND_REQUIRED_CONVENTION_TERMS = [
-    "local naming conventions",
-    "AGENTS.md",
-    "nearby `docs/learnings/` filenames",
-]
+EXPECTED_ROUTE_PAIRS = {
+    ("clarify", "gap-auditor"),
+    ("specify", "gap-auditor"),
+    ("verify", "verifier"),
+    ("review", "code-reviewer"),
+    ("compound", "docs-researcher"),
+}
+EXPECTED_SKILL_AGENTS = {
+    "clarify": {"code-explorer", "docs-researcher", "gap-auditor"},
+    "specify": {"code-explorer", "docs-researcher", "gap-auditor"},
+    "goal-draft": set(),
+    "verify": {"verifier"},
+    "review": {"code-reviewer"},
+    "compound": {"docs-researcher"},
+}
 
 
 def fail(message: str) -> None:
@@ -166,8 +145,30 @@ def main() -> None:
         fail("repository metadata must point to jaehoonE7877/threadex")
 
     smoke = json.loads(read(root / "smoke" / "smoke_cases.json"))
-    smoke_skills = {case["name"]: case for case in smoke["skills"]}
-    smoke_agents = {case["name"]: case for case in smoke["subagents"]}
+    skill_cases = smoke.get("skills", [])
+    agent_cases = smoke.get("subagents", [])
+    routes = smoke.get("routing", [])
+
+    skill_names = [case.get("name") for case in skill_cases]
+    if len(skill_names) != len(set(skill_names)):
+        fail("smoke skill names must be unique")
+    if set(skill_names) != set(REQUIRED_SKILLS):
+        fail("smoke skills must exactly match the required skill set")
+
+    agent_names = [case.get("name") for case in agent_cases]
+    if len(agent_names) != len(set(agent_names)):
+        fail("smoke subagent names must be unique")
+    if set(agent_names) != set(REQUIRED_AGENTS):
+        fail("smoke subagents must exactly match the required agent set")
+
+    smoke_skills = {case["name"]: case for case in skill_cases}
+    smoke_agents = {case["name"]: case for case in agent_cases}
+
+    route_pairs = {(route.get("skill"), route.get("agent")) for route in routes}
+    if len(route_pairs) != len(routes):
+        fail("smoke routing pairs must be unique")
+    if route_pairs != EXPECTED_ROUTE_PAIRS:
+        fail("smoke routing must exactly match the Threadex skill-agent routes")
 
     for skill in REQUIRED_SKILLS:
         skill_path = root / "skills" / skill / "SKILL.md"
@@ -178,15 +179,51 @@ def main() -> None:
         desc = fields.get("description", "")
         if not desc.startswith("Use when"):
             fail(f"{skill} description must start with 'Use when'")
-        if len(desc) > 700:
+        if len(desc) > 240:
             fail(f"{skill} description is too long for reliable trigger matching")
-        if skill != "goal-draft" and "## Subagent Handoff" not in text:
-            fail(f"{skill} must document Subagent Handoff")
-        if not (root / "skills" / skill / "agents" / "openai.yaml").exists():
-            fail(f"{skill} is missing agents/openai.yaml metadata")
-        if skill not in smoke_skills:
-            fail(f"{skill} missing smoke case")
-        for agent in smoke_skills[skill]["expected_agents"]:
+        metadata_path = root / "skills" / skill / "agents" / "openai.yaml"
+        metadata = read(metadata_path)
+        if not re.search(r"(?m)^\s*allow_implicit_invocation:\s*true\s*$", metadata):
+            fail(f"{skill} metadata must allow implicit invocation")
+        default_prompt_line = next(
+            (
+                line.strip()
+                for line in metadata.splitlines()
+                if line.strip().startswith("default_prompt:")
+            ),
+            None,
+        )
+        if default_prompt_line is None:
+            fail(f"{skill} metadata must define default_prompt")
+        default_prompt = default_prompt_line.split(":", 1)[1].strip().strip('"\'')
+        invocation_pattern = rf"(?<![A-Za-z0-9_:-])\$threadex:{re.escape(skill)}(?![A-Za-z0-9_-])"
+        if not re.search(invocation_pattern, default_prompt):
+            fail(f"{skill} metadata default prompt must use its namespaced invocation")
+
+        case = smoke_skills[skill]
+        for field in ["explicit", "natural", "expected_output"]:
+            value = case.get(field)
+            if not isinstance(value, str) or not value.strip():
+                fail(f"{skill} smoke field {field} must be a non-empty string")
+        required_terms = case.get("required_terms")
+        if not isinstance(required_terms, list) or not required_terms:
+            fail(f"{skill} smoke case must include required_terms")
+        for term in required_terms:
+            if not isinstance(term, str) or not term:
+                fail(f"{skill} required_terms must contain non-empty strings")
+            if term not in text:
+                fail(f"{skill} is missing smoke contract term: {term}")
+        explicit = case["explicit"]
+        if not re.match(rf"^\$threadex:{re.escape(skill)}(?:\s|$)", explicit):
+            fail(f"{skill} explicit smoke must use $threadex:{skill}")
+        expected_agents = case.get("expected_agents")
+        if not isinstance(expected_agents, list):
+            fail(f"{skill} expected_agents must be a list")
+        if len(expected_agents) != len(set(expected_agents)):
+            fail(f"{skill} expected_agents must be unique")
+        if set(expected_agents) != EXPECTED_SKILL_AGENTS[skill]:
+            fail(f"{skill} expected_agents do not match the skill contract")
+        for agent in expected_agents:
             if agent not in text:
                 fail(f"{skill} smoke expects {agent}, but SKILL.md does not mention it")
 
@@ -200,64 +237,42 @@ def main() -> None:
             fail(f"{agent} must include an explicit contract")
         if data.get("sandbox_mode") != "read-only":
             fail(f"{agent} must use read-only sandbox_mode")
-        if data.get("model") != EXPECTED_AGENT_MODELS[agent]:
-            fail(f"{agent} model must be {EXPECTED_AGENT_MODELS[agent]}")
-        if agent not in smoke_agents:
-            fail(f"{agent} missing subagent smoke case")
+        expected = EXPECTED_AGENT_CONFIGS[agent]
+        if data.get("model") != expected["model"]:
+            fail(f"{agent} model must be {expected['model']}")
+        if data.get("model_reasoning_effort") != expected["effort"]:
+            fail(f"{agent} reasoning effort must be {expected['effort']}")
 
-    for route in smoke["routing"]:
+        case = smoke_agents[agent]
+        spawn_smoke = case.get("spawn_smoke")
+        if not isinstance(spawn_smoke, str) or not spawn_smoke.strip():
+            fail(f"{agent} spawn_smoke must be a non-empty string")
+        required_terms = case.get("required_terms")
+        if not isinstance(required_terms, list) or not required_terms:
+            fail(f"{agent} smoke case must include required_terms")
+        for term in required_terms:
+            if not isinstance(term, str) or not term:
+                fail(f"{agent} required_terms must contain non-empty strings")
+            if term not in instructions:
+                fail(f"{agent} is missing smoke contract term: {term}")
+
+    for route in routes:
+        handoff = route.get("handoff")
+        if not isinstance(handoff, str) or not handoff.strip():
+            fail(f"routing {route.get('skill')} -> {route.get('agent')} needs a handoff")
         skill_text = read(root / "skills" / route["skill"] / "SKILL.md")
         if route["agent"] not in skill_text:
             fail(f"routing {route['skill']} -> {route['agent']} not documented in skill")
 
-    compound_text = read(root / "skills" / "compound" / "SKILL.md")
-    for required in COMPOUND_REQUIRED_TERMS:
-        if required not in compound_text:
-            fail(f"compound is missing learning pipeline contract: {required}")
-    for required in COMPOUND_REQUIRED_CONVENTION_TERMS:
-        if required not in compound_text:
-            fail(f"compound is missing local convention contract: {required}")
     for support_file in [
         root / "skills" / "compound" / "references" / "problem-types.md",
+        root / "skills" / "compound" / "references" / "persistence-schema.md",
         root / "skills" / "compound" / "templates" / "LEARNING_TEMPLATE.md",
     ]:
-        if not support_file.exists():
-            fail(f"compound missing support file: {support_file.name}")
+        read(support_file)
 
-    clarify_text = read(root / "skills" / "clarify" / "SKILL.md")
-    for required in CLARIFY_REQUIRED_BOUNDARY_TERMS:
-        if required not in clarify_text:
-            fail(f"clarify is missing boundary/progress contract: {required}")
-
-    specify_text = read(root / "skills" / "specify" / "SKILL.md")
-    for required in SPECIFY_REQUIRED_LEARNING_TERMS:
-        if required not in specify_text:
-            fail(f"specify is missing learning reuse contract: {required}")
-    for required in SPECIFY_REQUIRED_OPEN_DECISION_TERMS:
-        if required not in specify_text:
-            fail(f"specify is missing open decision handoff contract: {required}")
-
-    goal_text = read(root / "skills" / "goal-draft" / "SKILL.md")
-    if "4000" not in goal_text:
-        fail("goal-draft skill must enforce the 4000 character limit")
-    if "name: draft-codex-goal" in goal_text:
-        fail("goal-draft must keep the skill name as goal-draft")
-    if "# Draft Codex Goal" not in goal_text:
-        fail("goal-draft must preserve the copied draft-codex-goal content")
-    for required in [
-        "Six-Slot Contract",
-        "Domain Routing",
-        "Clarifying Questions",
-        "Drafting Rules",
-        "references/domain_defaults.md",
-        "references/slot_checklist.md",
-        "references/style_overlay.md",
-    ]:
-        if required not in goal_text:
-            fail(f"goal-draft is missing draft-codex-goal contract: {required}")
     for ref_name in ["domain_defaults.md", "slot_checklist.md", "style_overlay.md"]:
-        if not (root / "skills" / "goal-draft" / "references" / ref_name).exists():
-            fail(f"goal-draft missing reference file: {ref_name}")
+        read(root / "skills" / "goal-draft" / "references" / ref_name)
 
     print("Threadex validation passed")
 
