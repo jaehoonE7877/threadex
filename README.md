@@ -133,7 +133,9 @@ flowchart LR
 
 Threadex의 프롬프트는 GPT-5.6 권장 방식에 맞춰 결과를 먼저 정의합니다. 각 단계는 필요한 성공 근거와 제약만 명시하고, 이미 허용된 작업을 다시 승인받지 않습니다. 근거가 부족하거나 막힌 상태는 완료로 처리하지 않습니다.
 
-Subagent는 작업 성격에 따라 나뉩니다. 파일·문서 탐색처럼 읽기 중심 작업은 `gpt-5.6-terra`와 낮은 추론 강도를 사용하고, 검증·리뷰처럼 판단이 중요한 작업은 `gpt-5.6`과 높은 추론 강도를 사용합니다.
+Subagent는 작업 성격에 따라 나뉩니다. 파일·문서 탐색처럼 읽기 중심 작업은 `gpt-5.6-terra`와 낮은 추론 강도를 사용하고, 모호성 감사·검증·리뷰처럼 판단이 중요한 작업은 `gpt-5.6-sol`과 높은 추론 강도를 사용합니다. `gpt-5.6-luna`는 명확하고 반복적인 대량 처리 역할에 적합하지만, 현재 Threadex subagent 중에는 해당 역할이 없어 배정하지 않습니다.
+
+이 배정은 OpenAI의 [Codex Subagents 모델 선택 가이드](https://learn.chatgpt.com/docs/agent-configuration/subagents#choosing-models-and-reasoning)와 [GPT-5.6 모델 가이드](https://developers.openai.com/api/docs/guides/model-guidance?model=gpt-5.6)를 기준으로 합니다.
 
 ### 배운 점은 어디에 저장되나요?
 

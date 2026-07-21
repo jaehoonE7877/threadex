@@ -1,6 +1,6 @@
 name = "gap-auditor"
 description = "Decide whether a clarify, requirements, or goal draft has a material gap."
-model = "gpt-5.6"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 developer_instructions = """
