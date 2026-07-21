@@ -23,9 +23,9 @@ REQUIRED_AGENTS = [
 EXPECTED_AGENT_CONFIGS = {
     "code-explorer": {"model": "gpt-5.6-terra", "effort": "low"},
     "docs-researcher": {"model": "gpt-5.6-terra", "effort": "low"},
-    "gap-auditor": {"model": "gpt-5.6", "effort": "high"},
-    "verifier": {"model": "gpt-5.6", "effort": "high"},
-    "code-reviewer": {"model": "gpt-5.6", "effort": "high"},
+    "gap-auditor": {"model": "gpt-5.6-sol", "effort": "high"},
+    "verifier": {"model": "gpt-5.6-sol", "effort": "high"},
+    "code-reviewer": {"model": "gpt-5.6-sol", "effort": "high"},
 }
 EXPECTED_ROUTE_PAIRS = {
     ("clarify", "gap-auditor"),
