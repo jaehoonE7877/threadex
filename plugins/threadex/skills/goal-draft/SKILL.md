@@ -49,6 +49,7 @@ If a question is required, ask one short question and include a recommended defa
 - Use decision rules where Codex can choose the path.
 - Carry forward authorization already given in the conversation, including explicitly authorized external actions. Ask only for a new material boundary; a stage transition does not reset permission.
 - Keep internal attempt and evidence tracking detailed, but request user-visible updates only at major phase changes, plan changes, or blockers.
+- Preserve material source links/IDs, target revisions, and unresolved evidence gaps from the requirements handoff. Do not turn a planned check into an observed success or repeat external discovery when the handoff already supplies sufficient evidence.
 - Do not invent project facts, commands, thresholds, dates, paths, owners, or external IDs.
 - Do not mark the goal complete until all success evidence passes. If blocked, stop the current run and report the blocker without marking the goal complete.
 - Keep the submitted `/goal` block within 4000 characters, including `/goal`, line breaks, bullets, and inline commands.

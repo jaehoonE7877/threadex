@@ -24,6 +24,7 @@ Use `verify` when the primary question is whether requirements are complete. For
 
 ## Tool Routing
 
+- When the task names external sources or needs material evidence outside the repo, read [connected evidence](../verify/references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
 - Read the review surface before drawing conclusions.
 - Use `code-reviewer` for non-trivial changes, cross-module contracts, release behavior, or meaningful test risk. Skip delegation when a direct review is sufficient for a tiny mechanical or docs-only change. If unavailable, use a suitable available role or review directly.
 

@@ -3,6 +3,7 @@
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -65,6 +66,23 @@ class ValidationTests(unittest.TestCase):
     def test_missing_asset_is_rejected(self):
         (self.root / "assets/threadex-icon.png").unlink()
         self.assertNotEqual(self.validate().returncode, 0)
+
+    def test_missing_connected_evidence_reference_is_rejected(self):
+        (self.root / "skills/verify/references/connected_evidence.md").unlink()
+        self.assertNotEqual(self.validate().returncode, 0)
+
+    def test_trial_skill_references_resolve(self):
+        request = prepare(self.root, "connected_access_denied", self.base / "trial")
+        skills = (request.parent / "skills").resolve()
+        for entry in skills.glob("*/SKILL.md"):
+            for relative in re.findall(r"\]\(([^)]+\.md)\)", entry.read_text()):
+                if "://" in relative:
+                    continue
+                target = (entry.parent / relative).resolve()
+                self.assertTrue(target.is_relative_to(skills), relative)
+                self.assertTrue(target.is_file(), relative)
+                original = self.root / "skills" / target.relative_to(skills)
+                self.assertEqual(target.read_bytes(), original.read_bytes())
 
     def test_release_version_mismatch_is_rejected(self):
         env = dict(os.environ, THREADEX_RELEASE_VERSION="99.0.0", PYTHONDONTWRITEBYTECODE="1")
