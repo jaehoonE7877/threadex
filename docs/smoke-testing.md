@@ -1,78 +1,77 @@
-# Smoke Testing Threadex
+# Testing Threadex
 
-Run static checks first:
+## Static checks
+
+From the repository root, using Python 3.11+:
 
 ```bash
-python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
-: "${NEXT_VERSION:?set NEXT_VERSION to the version you are about to publish}"
-THREADEX_RELEASE_VERSION="$NEXT_VERSION" python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
-python3 "${CODEX_HOME:-$HOME/.codex}/skills/.system/plugin-creator/scripts/validate_plugin.py" plugins/threadex
+PYTHONDONTWRITEBYTECODE=1 python3 plugins/threadex/scripts/validate_threadex.py plugins/threadex
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
 ```
 
-## Skill Trigger Checks
+The validator checks package metadata, included assets, skill/agent identity,
+reference files, routing declarations, version consistency, and behavior-case
+structure. Distributed adapters must inherit model/effort and session permissions.
+It does not prescribe a description prefix or claim model behavior from matching
+headings. Its success message explicitly says behavior cases were not executed.
 
-After installing Threadex in Codex and starting a new thread, test both explicit and natural triggers:
+`skill-creator/scripts/quick_validate.py` can additionally check each skill when
+available in your Codex installation. The retired bundled `plugin-creator`
+validator is not a release dependency.
 
-| Skill | Explicit | Natural |
-|---|---|---|
-| `clarify` | `$threadex:clarify "add a settings toggle"` | `요구사항이 모호하지 않게 한 질문씩 물어봐줘.` |
-| `specify` | `$threadex:specify "dark mode toggle"` | `이 작업을 검증 가능한 요구사항으로 바꿔줘.` |
-| `goal-draft` | `$threadex:goal-draft .threadex/requirements.md` | `이 PRD를 Codex /goal 프롬프트로 만들어줘.` |
-| `verify` | `$threadex:verify "is this done?"` | `완료됐다는 주장을 증거로 검증해줘.` |
-| `review` | `$threadex:review` | `이 diff에 ship blocker가 있는지 리뷰해줘.` |
-| `compound` | `$threadex:compound` | `이번 실행에서 다음에 재사용할 교훈을 정리해줘.` |
+## Behavior trials
 
-Expected result: Codex loads the matching skill, follows the skill body, and does not rely only on the description.
+`plugins/threadex/smoke/behavior_cases.json` contains realistic requests, raw
+fixtures, expected skill selection, and observable grading criteria. The cases
+cover all six skills, a no-skill control, stale evidence, summary-only persistence,
+and already-authorized review/verify/specify-to-implementation handoffs.
 
-## Subagent Spawn Checks
+Prepare each trial in a **new temporary directory outside the repository**:
 
-Use the current Codex multi-agent surface to spawn bounded checks:
-
-```text
-Spawn code-explorer for a read-only search of relevant files. It must not edit files.
-Spawn verifier to audit whether the previous result is complete. It must return PASS, FAIL, or BLOCKED with evidence.
-Spawn code-reviewer to review the current diff. It must lead with findings and not rewrite code.
+```bash
+python3 plugins/threadex/scripts/prepare_behavior_eval.py review_and_fix /tmp/threadex-review-fix-trial
 ```
 
-Static validation also checks that every Threadex adapter is configured with a
-read-only sandbox and the intended model and reasoning effort for its task class.
+Give an independent agent only the resulting `request.md`. It includes the user
+request and all skill descriptions/paths, but not the expected answer or rubric.
+Each trial has separate workspace and skill copies. Do not give the agent this
+test guide or the source case file. Ask it to perform the task, not predict what
+the skill should do. Do not reuse a modified trial directory.
 
-If custom adapter names from `plugins/threadex/codex/agents/*.toml` are not available in the current Codex runtime, spawn the closest native role and pass the relevant adapter contract as task context. Record that as a runtime limitation, not a plugin success.
+After it finishes, grade the actual response, tool activity, and file changes
+against every case check. Run the fixture tests independently for repair cases.
+Adding relevant tests is allowed; weakening existing tests or requirements is not.
+Check that review-only, verify-only, draft-only, and summary-only trials preserve
+the source fixtures and do not leave new user artifacts. Interpreter caches are
+not user artifacts. Never infer behavioral success from the preparation script.
 
-Evidence from repository checks proves that the contracts and routing prompts exist. It does not prove Codex runtime registration. Runtime registration is proven only after installing Threadex, restarting Codex, starting a fresh thread, and observing the skill/subagent behavior there.
+Record the plugin version/revision, model and effort when known, case IDs, verdicts,
+observed evidence, and limitations. Keep raw transcripts and generated fixtures
+outside the repository. A concise release report can live under
+`docs/evaluations/`. Treat one passing trial per case as a smoke test, not a
+reliability estimate or proof of behavior on every supported model.
 
-## Skill-to-Subagent Routing Checks
+## Installed plugin and agent checks
 
-For each skill, give it a task that needs the route below and inspect the resulting delegation:
+After updating the Git marketplace and installing Threadex, start a fresh Codex
+session and test explicit and natural requests from `smoke/smoke_cases.json`.
+Confirm that it reads the **new installed** `SKILL.md`. Prepared trials above test
+supplied skill behavior; they do not prove native plugin discovery.
 
-| Skill | Required route |
-|---|---|
-| `clarify` | `gap-auditor` for ambiguity audit; `code-explorer`/`docs-researcher` for evidence |
-| `specify` | `gap-auditor` for requirements coverage |
-| `verify` | `verifier` for completion audit |
-| `review` | `code-reviewer` for bug/regression review |
-| `compound` | `docs-researcher` for raw ledger, AI index, and human doc location |
+The optional agent TOMLs require separate installation (see README). Spawn a
+bounded `code-explorer`, `code-reviewer`, or `verifier` task and inspect the actual
+configuration and behavior. The model/effort should follow host settings, and
+permissions come from the parent session. Read-only instructions do not create a
+separate sandbox. See the [official agent schema](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
-Pass criteria:
+If a custom role is unavailable, use a suitable available role or inspect directly;
+report the fallback instead of calling it successful custom-agent registration.
+Delegation is conditional on task value, not required for every tiny trial. A
+reviewer/verifier stays read-only; the parent performs already-authorized repairs.
 
-- The skill uses the expected subagent when delegation materially helps.
-- The subagent receives a bounded task.
-- The subagent follows its contract.
-- The parent skill integrates the result without pretending weak evidence is complete.
-- `clarify` shows decision progress and hands off to `specify` or `goal-draft` instead of writing requirements or implementation artifacts.
-- `specify` separates blocking Open Decisions from non-blocking defaults before handoff.
-- `compound` chooses human learning doc paths from local naming conventions when visible.
+For prompt regressions, compare the same case with the old and new skill on the
+same model/effort first. Change model settings separately if needed. Check correct
+selection, factual evidence, scope, completion, and unnecessary approval stops.
 
-## GPT-5.6 Prompt Regression Check
-
-When changing a prompt contract, compare the same representative task in this order:
-
-1. Current Threadex prompt with the previous model.
-2. Current Threadex prompt with GPT-5.6 and the same reasoning effort.
-3. Refactored prompt with GPT-5.6 and the same reasoning effort.
-
-Change only one variable at a time. Record whether the result met the requested outcome, cited enough evidence, respected the authorized scope, and kept `BLOCKED` distinct from completion. Prefer the lowest reasoning effort that remains reliable for that task class.
-
-## Known Gap
-
-This repository can statically validate skill metadata and adapter contracts. Full implicit trigger testing requires installing the plugin in Codex, restarting Codex, and starting a fresh thread because skill discovery happens outside this repository.
+Sources: [Build skills](https://learn.chatgpt.com/docs/build-skills),
+[current prompting guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra).

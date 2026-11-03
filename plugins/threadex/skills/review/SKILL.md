@@ -1,6 +1,6 @@
 ---
 name: review
-description: Use when a code change, diff, commit, branch, or PR needs a risk-focused review for bugs, regressions, and test gaps.
+description: Review code changes for actionable bugs, regressions, and test gaps.
 ---
 
 # Review
@@ -14,7 +14,7 @@ Find actionable defects and missing evidence before the change ships. Findings a
 - The user asks for a code, diff, commit, branch, or PR review.
 - The requested result is a regression, ship-blocker, or approval-risk assessment rather than completion verification or implementation.
 
-Use `verify` when the primary question is whether requirements are complete. If the user asks to fix review findings, finish the review first and hand findings to the separately authorized fix workflow.
+Use `verify` when the primary question is whether requirements are complete. For review-and-fix requests, establish evidence-backed findings, then continue with the already-authorized fixes and relevant checks in the same run. Do not ask for permission again merely because the review stage ended.
 
 ## Inputs
 
@@ -25,7 +25,7 @@ Use `verify` when the primary question is whether requirements are complete. If 
 ## Tool Routing
 
 - Read the review surface before drawing conclusions.
-- Use `code-reviewer` for non-trivial changes, cross-module contracts, release behavior, or meaningful test risk. Skip delegation when a direct review is sufficient for a tiny mechanical or docs-only change.
+- Use `code-reviewer` for non-trivial changes, cross-module contracts, release behavior, or meaningful test risk. Skip delegation when a direct review is sufficient for a tiny mechanical or docs-only change. If unavailable, use a suitable available role or review directly.
 
 ## Severity
 
@@ -52,11 +52,12 @@ Each finding must cite a file, line, or diff hunk and explain the user-visible o
 
 ## Boundaries
 
-- Stay read-only during a review and do not rewrite the implementation.
+- Keep the review stage and delegated reviewer read-only. A review-only request never authorizes fixes; a review-and-fix request authorizes the parent to implement scoped fixes after establishing findings.
 - Do not approve from green tests alone; inspect whether they cover the changed behavior.
 - Do not report preferences as findings unless they create material correctness, product, security, or maintainability risk.
 
 ## Stop Conditions
 
 - If the review target is missing, ambiguous, or inaccessible, stop and request the exact ref or access needed rather than guessing.
-- Complete when the full requested review surface has been inspected and every finding, question, and residual risk is tied to evidence.
+- A review-only request is complete when the full requested review surface has been inspected and every finding, question, and residual risk is tied to evidence.
+- A review-and-fix request is complete only after scoped fixes and relevant verification, or a precise blocker. Report findings as fixed or remaining and cite current verification; do not finish with findings alone. New scope or external actions still require authorization unless already granted.

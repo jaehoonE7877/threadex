@@ -106,7 +106,7 @@ cp plugins/threadex/codex/agents/*.toml .codex/agents/
 ```
 
 복사한 뒤 Codex를 재시작하거나 새 작업을 시작하세요.
-그 다음 Codex에게 `code-explorer` 같은 Threadex subagent를 실행하도록 요청하고, `/agent`에서 생성된 subagent 작업을 확인하면 됩니다.
+그 다음 Codex에게 `code-explorer` 같은 Threadex subagent를 실행하도록 요청하고, `/subagents`에서 생성된 subagent 작업을 확인하면 됩니다.
 
 ## 3. 어떻게 돌아가나요?
 
@@ -131,11 +131,26 @@ flowchart LR
 | 5 | 결과가 맞는지 확인 | PASS(통과) / FAIL(실패) / BLOCKED(막힘) |
 | 6 | 다음 작업에 쓸 점 정리 | 배운 점 |
 
-Threadex의 프롬프트는 GPT-5.6 권장 방식에 맞춰 결과를 먼저 정의합니다. 각 단계는 필요한 성공 근거와 제약만 명시하고, 이미 허용된 작업을 다시 승인받지 않습니다. 근거가 부족하거나 막힌 상태는 완료로 처리하지 않습니다.
+Threadex는 결과와 완료 근거를 먼저 정의합니다. 여섯 단계를 항상 순서대로 실행하지 않고, 요청에 필요한 단계만 사용합니다. 이미 승인된 구현·수정은 단계가 바뀌어도 계속 진행하며, 근거가 부족한 상태를 완료로 처리하지 않습니다.
 
-Subagent는 작업 성격에 따라 나뉩니다. 파일·문서 탐색처럼 읽기 중심 작업은 `gpt-5.6-terra`와 낮은 추론 강도를 사용하고, 모호성 감사·검증·리뷰처럼 판단이 중요한 작업은 `gpt-5.6-sol`과 높은 추론 강도를 사용합니다. `gpt-5.6-luna`는 명확하고 반복적인 대량 처리 역할에 적합하지만, 현재 Threadex subagent 중에는 해당 역할이 없어 배정하지 않습니다.
+- “리뷰만 해줘”는 읽기 전용으로 끝납니다.
+- “리뷰하고 고친 뒤 테스트해줘”는 문제 확인 → 수정 → 관련 검증까지 이어집니다.
+- “검증하고 실패하면 고쳐줘”는 초기 판정 → 수정 → 재검증까지 이어집니다.
+- “요구사항 정리 후 구현해줘”는 수용 기준을 정리한 뒤 구현과 검증을 계속합니다.
+- “`/goal` 프롬프트만 작성해줘”는 초안만 반환하며 목표를 실행하지 않습니다.
 
-이 배정은 OpenAI의 [Codex Subagents 모델 선택 가이드](https://learn.chatgpt.com/docs/agent-configuration/subagents#choosing-models-and-reasoning)와 [GPT-5.6 모델 가이드](https://developers.openai.com/api/docs/guides/model-guidance?model=gpt-5.6)를 기준으로 합니다.
+Subagent 설정은 모델과 추론 강도를 고정하지 않습니다. Codex의 명시적 실행 설정, `[agents]` 기본값, 부모 설정의 우선순위를 따릅니다. 특정 모델을 쓰려면 사용자 환경에서 선택하세요. 자세한 상속 규칙은 [공식 Subagents 가이드](https://learn.chatgpt.com/docs/agent-configuration/subagents)를 참고하세요.
+
+Threadex의 리뷰·검증 에이전트는 파일을 수정하지 않도록 지시받지만, 별도 읽기 전용 sandbox를 갖지는 않습니다. 실제 권한은 부모 세션에서 상속됩니다. 전용 에이전트가 없으면 사용 가능한 역할 또는 직접 확인으로 작업을 계속합니다.
+
+### 기존 설치 업데이트
+
+```bash
+codex plugin marketplace upgrade threadex
+codex plugin add threadex@threadex
+```
+
+새 작업에서 갱신된 스킬을 사용하세요. 예전에 2번 절차로 subagent 파일을 복사했다면, plugin 업데이트와 별도로 해당 파일도 갱신해야 합니다. 직접 수정한 파일은 먼저 비교해 사용자 설정을 보존하세요. v0.5.0부터 배포본의 모델·추론 강도 고정과 효과가 없는 `sandbox_mode` 설정을 제거했습니다.
 
 ### 배운 점은 어디에 저장되나요?
 

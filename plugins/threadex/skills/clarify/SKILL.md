@@ -1,6 +1,6 @@
 ---
 name: clarify
-description: Use when an ambiguous request needs material decisions clarified before requirements, a durable goal, or implementation.
+description: Clarify material ambiguity before requirements, a goal, or implementation.
 ---
 
 # Clarify
@@ -27,7 +27,7 @@ Skip this skill when the request is already actionable, asks for implementation 
 - Use `code-explorer` for a bounded read-only question about source, tests, fixtures, or behavior.
 - Use `docs-researcher` for a bounded read-only question about project rules or documentation.
 - Run independent evidence reads in parallel. Use `gap-auditor` only when a fresh audit can decide whether material ambiguity remains.
-- If subagents are unavailable, perform the smallest direct read-only pass and label that fallback.
+- If a named agent is unavailable, use a suitable available agent with the same bounded contract, or inspect the evidence directly. Do not block the task on optional agent installation.
 
 ## Decision Rules
 
@@ -36,7 +36,7 @@ Skip this skill when the request is already actionable, asks for implementation 
 3. Ask exactly one question when its answer changes implementation, verification, safety, or scope. Carry harmless ambiguity as an explicit default.
 4. Show `Decision progress` only when a decision axis changes or the request reaches a handoff checkpoint; do not repeat it after routine answers.
 5. When no material blocker remains:
-   - continue to the requested next skill if the user already authorized the larger flow;
+   - carry the clarified intent, evidence, and existing authorization into the next requested step without asking again;
    - otherwise return the clarified handoff and stop.
 
 ## Boundaries

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static smoke checks for the Threadex plugin package."""
+"""Validate package structure and contracts, not model behavior."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+from prepare_behavior_eval import load_cases
+
 
 REQUIRED_SKILLS = ["clarify", "specify", "goal-draft", "verify", "review", "compound"]
 REQUIRED_AGENTS = [
@@ -20,12 +22,11 @@ REQUIRED_AGENTS = [
     "verifier",
     "code-reviewer",
 ]
-EXPECTED_AGENT_CONFIGS = {
-    "code-explorer": {"model": "gpt-5.6-terra", "effort": "low"},
-    "docs-researcher": {"model": "gpt-5.6-terra", "effort": "low"},
-    "gap-auditor": {"model": "gpt-5.6-sol", "effort": "high"},
-    "verifier": {"model": "gpt-5.6-sol", "effort": "high"},
-    "code-reviewer": {"model": "gpt-5.6-sol", "effort": "high"},
+# Distributed adapters inherit host model/effort and session permissions.
+# These fields must not silently pin a model or imply a separate sandbox.
+INHERITED_AGENT_FIELDS = {
+    "model", "model_reasoning_effort", "sandbox_mode", "approval_policy",
+    "model_provider", "mcp_servers",
 }
 EXPECTED_ROUTE_PAIRS = {
     ("clarify", "gap-auditor"),
@@ -144,6 +145,18 @@ def main() -> None:
     if manifest.get("repository") != "https://github.com/jaehoonE7877/threadex":
         fail("repository metadata must point to jaehoonE7877/threadex")
 
+    interface = manifest.get("interface", {})
+    for field in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
+        if not isinstance(interface.get(field), str) or not interface[field].strip():
+            fail(f"manifest interface requires {field}")
+    for field in ("composerIcon", "logo"):
+        asset = interface.get(field, "")
+        if not isinstance(asset, str) or not asset.startswith("./"):
+            fail(f"manifest {field} must be a plugin-relative path")
+        target = (root / asset).resolve()
+        if root not in target.parents or not target.is_file():
+            fail(f"manifest {field} must refer to an included file")
+
     smoke = json.loads(read(root / "smoke" / "smoke_cases.json"))
     skill_cases = smoke.get("skills", [])
     agent_cases = smoke.get("subagents", [])
@@ -177,8 +190,8 @@ def main() -> None:
         if fields.get("name") != skill:
             fail(f"{skill_path} frontmatter name must be {skill}")
         desc = fields.get("description", "")
-        if not desc.startswith("Use when"):
-            fail(f"{skill} description must start with 'Use when'")
+        if not desc.strip():
+            fail(f"{skill} description must be non-empty")
         if len(desc) > 240:
             fail(f"{skill} description is too long for reliable trigger matching")
         metadata_path = root / "skills" / skill / "agents" / "openai.yaml"
@@ -205,14 +218,6 @@ def main() -> None:
             value = case.get(field)
             if not isinstance(value, str) or not value.strip():
                 fail(f"{skill} smoke field {field} must be a non-empty string")
-        required_terms = case.get("required_terms")
-        if not isinstance(required_terms, list) or not required_terms:
-            fail(f"{skill} smoke case must include required_terms")
-        for term in required_terms:
-            if not isinstance(term, str) or not term:
-                fail(f"{skill} required_terms must contain non-empty strings")
-            if term not in text:
-                fail(f"{skill} is missing smoke contract term: {term}")
         explicit = case["explicit"]
         if not re.match(rf"^\$threadex:{re.escape(skill)}(?:\s|$)", explicit):
             fail(f"{skill} explicit smoke must use $threadex:{skill}")
@@ -232,30 +237,17 @@ def main() -> None:
         data = tomllib.loads(read(agent_path))
         if data.get("name") != agent:
             fail(f"{agent_path} name must be {agent}")
-        instructions = data.get("developer_instructions", "")
-        if "Contract:" not in instructions:
-            fail(f"{agent} must include an explicit contract")
-        if data.get("sandbox_mode") != "read-only":
-            fail(f"{agent} must use read-only sandbox_mode")
-        expected = EXPECTED_AGENT_CONFIGS[agent]
-        if data.get("model") != expected["model"]:
-            fail(f"{agent} model must be {expected['model']}")
-        if data.get("model_reasoning_effort") != expected["effort"]:
-            fail(f"{agent} reasoning effort must be {expected['effort']}")
+        for field in ("description", "developer_instructions"):
+            if not isinstance(data.get(field), str) or not data[field].strip():
+                fail(f"{agent} requires non-empty {field}")
+        pinned = INHERITED_AGENT_FIELDS.intersection(data)
+        if pinned:
+            fail(f"{agent} must inherit host settings; remove {', '.join(sorted(pinned))}")
 
         case = smoke_agents[agent]
         spawn_smoke = case.get("spawn_smoke")
         if not isinstance(spawn_smoke, str) or not spawn_smoke.strip():
             fail(f"{agent} spawn_smoke must be a non-empty string")
-        required_terms = case.get("required_terms")
-        if not isinstance(required_terms, list) or not required_terms:
-            fail(f"{agent} smoke case must include required_terms")
-        for term in required_terms:
-            if not isinstance(term, str) or not term:
-                fail(f"{agent} required_terms must contain non-empty strings")
-            if term not in instructions:
-                fail(f"{agent} is missing smoke contract term: {term}")
-
     for route in routes:
         handoff = route.get("handoff")
         if not isinstance(handoff, str) or not handoff.strip():
@@ -274,7 +266,16 @@ def main() -> None:
     for ref_name in ["domain_defaults.md", "slot_checklist.md", "style_overlay.md"]:
         read(root / "skills" / "goal-draft" / "references" / ref_name)
 
-    print("Threadex validation passed")
+    try:
+        cases = load_cases(root)
+    except (ValueError, OSError, TypeError) as error:
+        fail(str(error))
+    covered = {skill for case in cases for skill in case["expected_skills"]}
+    if covered != set(REQUIRED_SKILLS):
+        fail("behavior cases must cover every skill")
+    if not any(not case["expected_skills"] for case in cases):
+        fail("behavior cases must include a no-skill control")
+    print(f"Threadex static validation passed ({len(cases)} behavior cases defined, not executed)")
 
 
 if __name__ == "__main__":

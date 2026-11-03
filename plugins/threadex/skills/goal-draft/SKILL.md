@@ -1,6 +1,6 @@
 ---
 name: goal-draft
-description: Use when multi-step work with a clear finish line needs a durable, evidence-checkable Codex `/goal` prompt.
+description: Draft an evidence-checkable Codex /goal prompt for durable multi-step work.
 ---
 
 # Draft Codex Goal
@@ -47,7 +47,7 @@ If a question is required, ask one short question and include a recommended defa
 - Lead with the end state and success evidence, not a procedure list.
 - Preserve user-provided ordering, tools, wording, quantitative targets, output formats, and stop rules unless they conflict.
 - Use decision rules where Codex can choose the path.
-- Distinguish safe local work already authorized by the request from external, destructive, costly, or scope-expanding actions that still need confirmation.
+- Carry forward authorization already given in the conversation, including explicitly authorized external actions. Ask only for a new material boundary; a stage transition does not reset permission.
 - Keep internal attempt and evidence tracking detailed, but request user-visible updates only at major phase changes, plan changes, or blockers.
 - Do not invent project facts, commands, thresholds, dates, paths, owners, or external IDs.
 - Do not mark the goal complete until all success evidence passes. If blocked, stop the current run and report the blocker without marking the goal complete.
@@ -83,7 +83,7 @@ If blocked:
 
 ## Stop Conditions
 
-- Return the draft when all six slots are defensible and the block is within 4000 characters.
+- Return the draft when all six slots are defensible and the block is within 4000 characters. Drafting alone does not authorize starting a goal. Continue into execution only when the user has also authorized it; create a durable goal only when explicitly requested and supported by the host.
 - If no credible success evidence can be inferred, ask one blocking question instead of inventing a verifier.
 - If unrelated outcomes cannot fit one auditable contract, split them into separate goals.
 - If the hard limit is at risk, remove optional rationale, merge repeated clauses, and reference named artifacts before dropping success, safety, or approval boundaries.
