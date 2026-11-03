@@ -1,6 +1,6 @@
 ---
 name: specify
-description: Use when a clear request needs verifiable requirements, acceptance criteria, a PRD, or requirements.md before implementation.
+description: Write verifiable requirements, acceptance criteria, or a PRD when requested or needed for an authorized implementation.
 ---
 
 # Specify
@@ -26,7 +26,7 @@ Return to `clarify` when one material user decision still changes the requiremen
 
 ## Tool Routing
 
-- Use `code-explorer` and `docs-researcher` for bounded project evidence; parallelize independent reads.
+- Use `code-explorer` and `docs-researcher` for bounded project evidence when delegation adds value; parallelize independent reads. If a named agent is unavailable, use a suitable available role or inspect directly.
 - Use `gap-auditor` when risk is medium or higher, especially for auth, payments, privacy, destructive actions, migrations, public APIs, cross-platform UI, releases, or multi-module changes.
 - Open `.threadex/learnings/ledger.json` or a linked `human_doc` only when the compact index rule is ambiguous, disputed, or insufficient.
 
@@ -79,7 +79,7 @@ Omit empty optional sections except `Open Decisions`, where `None` makes the han
 
 ## Stop Conditions
 
-- Complete when every material outcome has observable acceptance evidence, constraints preserve the required behavior, and no blocking decision remains.
+- The requirements stage is complete when every material outcome has observable acceptance evidence, constraints preserve the required behavior, and no blocking decision remains. If implementation or another next step is already authorized, carry the contract and evidence forward and continue without duplicate approval. Otherwise return the requirements and stop.
 - If a required fact or decision cannot be obtained, stop with the exact blocker and smallest next input.
 
 Before finalizing, confirm that narrow checks are not being used to claim broad coverage and that any written file matches the returned requirement contract.

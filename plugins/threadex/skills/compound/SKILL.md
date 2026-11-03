@@ -1,6 +1,6 @@
 ---
 name: compound
-description: Use when a completed, failed, blocked, reviewed, or verified Codex run should produce reusable evidence-backed learnings.
+description: Extract reusable, evidence-backed learnings when a run retrospective is requested.
 ---
 
 # Compound
@@ -34,7 +34,7 @@ When persistence is authorized, read [references/persistence-schema.md](referenc
 
 ## Tool Routing
 
-- Use `docs-researcher` when persistence or deduplication needs a bounded search for the ledger, AI index, related human docs, or project naming rules.
+- Use `docs-researcher` when persistence or deduplication needs a bounded search for the ledger, AI index, related human docs, or project naming rules. If unavailable, use a suitable available role or inspect directly.
 - If a PR is explicitly part of the evidence and accessible, retrieve only the fields needed for the learning through an authoritative read tool.
 - Skip delegation for a conversational summary when persistence location and duplicate detection do not matter.
 

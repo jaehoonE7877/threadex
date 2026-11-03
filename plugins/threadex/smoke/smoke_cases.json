@@ -4,120 +4,79 @@
       "name": "clarify",
       "explicit": "$threadex:clarify \"add a settings toggle\"",
       "natural": "요구사항이 모호하지 않게 필요한 질문만 한 번에 하나씩 물어봐줘.",
-      "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "one material question or a clarified handoff with sparse decision progress",
-      "required_terms": [
-        "## Outcome",
-        "Decision progress",
-        "Sufficient for specify",
-        "Do not draft requirements",
-        "## Stop Conditions"
-      ]
+      "expected_agents": [
+        "code-explorer",
+        "docs-researcher",
+        "gap-auditor"
+      ],
+      "expected_output": "one material question or a clarified handoff with sparse decision progress"
     },
     {
       "name": "specify",
       "explicit": "$threadex:specify \"dark mode toggle\"",
       "natural": "이 작업을 검증 가능한 요구사항으로 바꿔줘.",
-      "expected_agents": ["code-explorer", "docs-researcher", "gap-auditor"],
-      "expected_output": "verifiable requirements with preserved user values and blocking decisions separated from defaults",
-      "required_terms": [
-        "## Outcome",
-        "## Acceptance Criteria",
-        "Prior Learnings Applied",
-        "Blocking",
-        "Non-blocking defaults",
-        ".threadex/learnings/index.json",
-        "## Stop Conditions"
-      ]
+      "expected_agents": [
+        "code-explorer",
+        "docs-researcher",
+        "gap-auditor"
+      ],
+      "expected_output": "verifiable requirements with preserved user values and blocking decisions separated from defaults"
     },
     {
       "name": "goal-draft",
       "explicit": "$threadex:goal-draft .threadex/requirements.md",
       "natural": "이 PRD를 Codex /goal 프롬프트로 만들어줘.",
       "expected_agents": [],
-      "expected_output": "paste-ready /goal prompt under 4000 characters with success evidence and blocked behavior separated",
-      "required_terms": [
-        "Six-Slot Contract",
-        "Success evidence",
-        "Blocked stop condition",
-        "Do not mark this goal complete",
-        "4000",
-        "references/domain_defaults.md",
-        "references/slot_checklist.md",
-        "references/style_overlay.md"
-      ]
+      "expected_output": "paste-ready /goal prompt under 4000 characters with success evidence and blocked behavior separated"
     },
     {
       "name": "verify",
       "explicit": "$threadex:verify \"is this done?\"",
       "natural": "완료됐다는 주장을 요구사항별 증거로 검증해줘.",
-      "expected_agents": ["verifier"],
-      "expected_output": "PASS, FAIL, or BLOCKED with a requirement-to-evidence mapping",
-      "required_terms": [
-        "Requirement evidence",
-        "`PASS`",
-        "`FAIL`",
-        "`BLOCKED`",
-        "every remaining material requirement",
-        "## Stop Conditions"
-      ]
+      "expected_agents": [
+        "verifier"
+      ],
+      "expected_output": "PASS, FAIL, or BLOCKED with a requirement-to-evidence mapping"
     },
     {
       "name": "review",
       "explicit": "$threadex:review",
       "natural": "이 diff에 ship blocker가 있는지 리뷰해줘.",
-      "expected_agents": ["code-reviewer"],
-      "expected_output": "severity-ordered findings or no findings with residual risk and unrun tests",
-      "required_terms": [
-        "Findings:",
-        "Open questions:",
-        "Residual risk:",
-        "No findings",
-        "## Stop Conditions"
-      ]
+      "expected_agents": [
+        "code-reviewer"
+      ],
+      "expected_output": "severity-ordered findings or no findings with residual risk and unrun tests"
     },
     {
       "name": "compound",
       "explicit": "$threadex:compound",
       "natural": "이번 실행에서 다음에 재사용할 근거 있는 교훈을 정리해줘.",
-      "expected_agents": ["docs-researcher"],
-      "expected_output": "reusable learning summary or authorized ledger/index updates without empty artifacts",
-      "required_terms": [
-        ".threadex/learnings/ledger.json",
-        ".threadex/learnings/index.json",
-        "persistence-schema.md",
-        "Explicit `$threadex:compound`",
-        "No reusable learning found",
-        "Next specify defaults",
-        "## Stop Conditions"
-      ]
+      "expected_agents": [
+        "docs-researcher"
+      ],
+      "expected_output": "reusable learning summary or authorized ledger/index updates without empty artifacts"
     }
   ],
   "subagents": [
     {
       "name": "code-explorer",
-      "spawn_smoke": "Ask for a bounded read-only source search and expect evidence with no edits.",
-      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
+      "spawn_smoke": "Ask for a bounded read-only source search and expect evidence with no edits."
     },
     {
       "name": "docs-researcher",
-      "spawn_smoke": "Ask for authoritative project guidance and expect sourced facts, inference, and gaps.",
-      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
+      "spawn_smoke": "Ask for authoritative project guidance and expect sourced facts, inference, and gaps."
     },
     {
       "name": "gap-auditor",
-      "spawn_smoke": "Pass a short draft and expect SUFFICIENT or CONTINUE with exactly one material question.",
-      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
+      "spawn_smoke": "Pass a short draft and expect SUFFICIENT or CONTINUE with exactly one material question."
     },
     {
       "name": "verifier",
-      "spawn_smoke": "Ask to verify a scoped claim and expect requirement-level PASS, FAIL, or BLOCKED evidence.",
-      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
+      "spawn_smoke": "Ask to verify a scoped claim and expect requirement-level PASS, FAIL, or BLOCKED evidence."
     },
     {
       "name": "code-reviewer",
-      "spawn_smoke": "Ask to review a diff and expect evidence-backed findings or explicit residual risk.",
-      "required_terms": ["Outcome:", "Evidence:", "Boundary:", "Output:"]
+      "spawn_smoke": "Ask to review a diff and expect evidence-backed findings or explicit residual risk."
     }
   ],
   "routing": [

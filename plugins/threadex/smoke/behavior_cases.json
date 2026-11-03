@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "explanation_only",
+      "prompt": "Python에서 > 와 >= 는 어떻게 달라? 두 문장으로 설명해줘.",
+      "expected_skills": [],
+      "files": {},
+      "checks": [
+        "Answers the comparison question directly in two sentences.",
+        "Does not load a Threadex workflow or create files, requirements, or a goal."
+      ]
+    },
+    {
+      "id": "clarify_from_repo",
+      "prompt": "$threadex:clarify 설정 화면에 다크 모드 토글을 추가하려고 해. README.md의 결정 사항을 먼저 확인하고, 요구사항을 정리하기 전에 정말 필요한 질문만 해줘. 아직 문서나 코드는 만들지 마.",
+      "expected_skills": [
+        "clarify"
+      ],
+      "files": {
+        "README.md": "# Settings decisions\nAdd a dark-mode toggle. Default OFF means follow the system appearance; ON forces dark appearance. Persist the choice on this device across relaunch. Support iOS 18+. Acceptance: toggle applies immediately and persists after relaunch.\n"
+      },
+      "checks": [
+        "Reads README.md before deciding whether a material question remains.",
+        "Does not ask again about default, persistence, supported OS, or acceptance behavior already documented.",
+        "Returns a sufficient handoff with supported assumptions; creates no files."
+      ]
+    },
+    {
+      "id": "specify_values",
+      "prompt": "$threadex:specify API 실패 시 최초 요청 이후 최대 2회 재시도하고 재시도 간격은 정확히 3초로 해줘. 성공하면 즉시 멈추고, 모두 실패하면 오류 메시지를 표시해. 이 조건의 수용 기준을 채팅으로 정리해줘.",
+      "expected_skills": [
+        "specify"
+      ],
+      "files": {},
+      "checks": [
+        "Preserves two retries after the initial attempt (three attempts total) and a three-second retry interval.",
+        "Includes success/stop and retry-exhaustion/error acceptance evidence.",
+        "Returns requirements in chat without creating files or implementing code."
+      ]
+    },
+    {
+      "id": "goal_draft_only",
+      "prompt": "$threadex:goal-draft requirements.md를 만족하도록 checkout.py를 고칠 Codex /goal 프롬프트만 작성해줘. 테스트 명령은 README.md를 참고해. 지금 실행하지는 마.",
+      "expected_skills": [
+        "goal-draft"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Returns only an evidence-checkable /goal draft of at most 4000 characters.",
+        "Uses the real requirements and test command, with completion evidence and blocked behavior.",
+        "Does not start a goal, change files, or implement the repair."
+      ]
+    },
+    {
+      "id": "review_only",
+      "prompt": "$threadex:review requirements.md 기준으로 checkout.py와 tests/test_checkout.py를 리뷰해줘. 수정은 하지 말아줘.",
+      "expected_skills": [
+        "review"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Finds the exact-balance rejection with a file/line reference and concrete effect.",
+        "Does not implement a fix or change source/tests.",
+        "Distinguishes inspected evidence from unrun tests."
+      ]
+    },
+    {
+      "id": "verify_stale_ci",
+      "prompt": "$threadex:verify 이 checkout 구현은 requirements.md를 전부 만족해서 완료됐다는 주장을 검증해줘. ci.json은 이전 실행 결과야. 현재 소스 버전은 current_revision.txt에 있어. 파일 수정 없이 확인해줘.",
+      "expected_skills": [
+        "verify"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Does not accept revision-a CI as proof for current revision-b.",
+        "Returns FAIL for the equality requirement using current source or test evidence.",
+        "Maps greater/equal/lower behavior to evidence and leaves files unchanged."
+      ]
+    },
+    {
+      "id": "review_and_fix",
+      "prompt": "$threadex:review requirements.md 기준으로 checkout.py를 리뷰하고 발견한 버그를 고친 뒤 관련 테스트까지 실행해줘. 이 임시 프로젝트 안의 수정은 승인했어.",
+      "expected_skills": [
+        "review"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Establishes the equality defect before repair.",
+        "Fixes checkout.py and runs the relevant tests without asking again for repair approval.",
+        "All three tests pass; requirements and tests are not weakened; final report separates fixed findings and remaining risks."
+      ]
+    },
+    {
+      "id": "verify_and_fix",
+      "prompt": "$threadex:verify checkout 구현이 requirements.md를 만족하는지 검증하고, 실패하는 부분이 있으면 고쳐서 다시 검증해줘. 이 임시 프로젝트 안의 수정은 승인했어.",
+      "expected_skills": [
+        "verify"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Establishes an initial failure rather than treating the old CI result as completion.",
+        "Repairs the equality path and reruns tests without duplicate approval.",
+        "All original tests pass without weakening requirements or tests; reports final requirement-scoped verdict."
+      ]
+    },
+    {
+      "id": "compound_summary",
+      "prompt": "이번 실행의 교훈을 evidence.md에서 확인해서 다음에 재사용할 규칙으로 채팅에 정리해줘. 저장하지는 마.",
+      "expected_skills": [
+        "compound"
+      ],
+      "files": {
+        "evidence.md": "# Observed run\nThe retry test assumed a callback completed after a 50 ms sleep. CI failed 3 of 10 runs when the callback arrived after 80 ms. Replacing the sleep with an explicit callback expectation made all 10 repeated runs pass. No production delay was changed.\n"
+      },
+      "checks": [
+        "Extracts an evidence-backed rule scoped to asynchronous callback tests.",
+        "Does not generalize ten passing runs to a guarantee or invent measurements.",
+        "Creates no learning ledger/index or human document because persistence was excluded."
+      ]
+    },
+    {
+      "id": "specify_then_implement",
+      "prompt": "requirements.md의 조건을 짧은 수용 기준으로 정리한 다음 checkout.py를 수정하고 테스트까지 끝내줘. 이 임시 프로젝트 안의 구현은 승인했어. 별도의 요구사항 파일은 필요 없어.",
+      "expected_skills": [
+        "specify"
+      ],
+      "files": {
+        "README.md": "# Checkout\nRun checks with `python3 -m unittest discover -s tests -v`.\nThe project uses only the Python standard library.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout is allowed when balance is greater than or equal to cost. Lower balances must be rejected.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "ci.json": "{\n  \"revision\": \"revision-a\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\"\n  ]\n}\n"
+      },
+      "checks": [
+        "Preserves the equality requirement in acceptance criteria.",
+        "Continues into already-authorized implementation and tests rather than stopping at requirements or a goal draft.",
+        "All three tests pass; no extra requirements file or goal is created."
+      ]
+    }
+  ]
+}
