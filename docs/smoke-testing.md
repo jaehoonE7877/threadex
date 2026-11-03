@@ -75,3 +75,25 @@ selection, factual evidence, scope, completion, and unnecessary approval stops.
 
 Sources: [Build skills](https://learn.chatgpt.com/docs/build-skills),
 [current prompting guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra).
+
+## Connected evidence checks
+
+The `connected_*` cases are **synthetic saved connector responses**. They test
+reasoning about conflicting sources, denied access, pagination, target mismatch,
+embedded instructions, equivalent local evidence, and goal handoff provenance.
+They do not test a real server, OAuth, tool discovery, or provider transport.
+Prepare and grade them using the same isolated process above.
+
+For a separate live read smoke, use an already-connected provider and an explicitly
+scoped source you are authorized to read. For this repository, repeatable targets
+are PR #6 and release/tag v0.5.0:
+
+- Ask `specify` to read PR #6 and turn its handoff/agent behavior into acceptance
+  criteria, retaining the source ID. Do not provide the PR body to the agent.
+- Ask `verify` to check that v0.5.0 is published (not draft/prerelease), its tagged
+  manifest is version 0.5.0, and its peeled tag commit matches PR #6's merge commit.
+
+Inspect which real read tools and refs were used. Do not give the agent the expected
+SHA or grade an inaccessible provider as a pass. Live checks must not post comments,
+edit tickets/designs, rerun CI, or mutate remote state. Report the exact provider
+and claims checked; GitHub success does not prove Jira, Figma, or every MCP server.

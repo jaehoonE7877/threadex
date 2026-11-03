@@ -24,6 +24,7 @@ Skip this skill when the request is already actionable, asks for implementation 
 
 ## Tool Routing
 
+- When the task names external sources or needs material evidence outside the repo, read [connected evidence](../verify/references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
 - Use `code-explorer` for a bounded read-only question about source, tests, fixtures, or behavior.
 - Use `docs-researcher` for a bounded read-only question about project rules or documentation.
 - Run independent evidence reads in parallel. Use `gap-auditor` only when a fresh audit can decide whether material ambiguity remains.

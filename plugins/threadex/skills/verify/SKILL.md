@@ -24,6 +24,7 @@ Use `review` for defect discovery without a completion claim. Use `specify` to c
 
 ## Tool Routing
 
+- When the task names external sources or needs material evidence outside the repo, read [connected evidence](references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
 - Inspect direct evidence locally when the claim is small and bounded.
 - Use `verifier` for non-trivial, release, multi-file, or high-cost claims. Pass the claim, requirements, evidence paths or commands, and allowed boundary. If unavailable, use a suitable available role or verify directly.
 
@@ -54,7 +55,7 @@ Next action:
 - ...
 ```
 
-Lead with the verdict. Include exact commands, paths, lines, screenshots, or artifact identifiers that support each result.
+Lead with the verdict. Include exact commands, paths, lines, screenshots, or artifact identifiers that support each result. For connected evidence, retain the source link/ID, target revision/environment when relevant, and any access, freshness, or coverage limitation.
 
 ## Boundaries
 
