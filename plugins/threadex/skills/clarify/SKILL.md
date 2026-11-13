@@ -25,14 +25,14 @@ Skip this skill when the request is already actionable, asks for implementation 
 ## Tool Routing
 
 - When the task names external sources or needs material evidence outside the repo, read [connected evidence](../verify/references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
-- Use `code-explorer` for a bounded read-only question about source, tests, fixtures, or behavior.
-- Use `docs-researcher` for a bounded read-only question about project rules or documentation.
-- Run independent evidence reads in parallel. Use `gap-auditor` only when a fresh audit can decide whether material ambiguity remains.
-- If a named agent is unavailable, use a suitable available agent with the same bounded contract, or inspect the evidence directly. Do not block the task on optional agent installation.
+- Keep the interview and its settled decisions in the main context. Handle small known-file lookups directly and batch independent reads.
+- Use `code-explorer` for bounded source research or `docs-researcher` for bounded project guidance only when independent work or source volume justifies the handoff cost.
+- Use `gap-auditor` for an independent sufficiency check when consequential ambiguity, interacting constraints, or uncertain evidence could invalidate the handoff. Skip it when direct evidence already resolves a small request.
+- For delegation, independent checks, or reused handoff evidence, follow [context and delegation](../verify/references/delegation.md), including role fallback and the limits of self-review.
 
 ## Decision Rules
 
-1. Preserve the user's stated values and separate known facts from material unknowns.
+1. Preserve the user's stated values and settled decisions; reuse supported prior findings and separate known facts from material unknowns. Reopen a decision only when new conflicting evidence materially changes it.
 2. Answer repo-discoverable questions from evidence instead of asking the user.
 3. Ask exactly one question when its answer changes implementation, verification, safety, or scope. Carry harmless ambiguity as an explicit default.
 4. Show `Decision progress` only when a decision axis changes or the request reaches a handoff checkpoint; do not repeat it after routine answers.

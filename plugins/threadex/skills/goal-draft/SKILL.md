@@ -44,6 +44,7 @@ If a question is required, ask one short question and include a recommended defa
 
 ## Drafting Contract
 
+- Keep drafting in the main context and reuse the user's settled decisions. When carrying findings or checks from another stage, follow [context and delegation](../verify/references/delegation.md); recheck only evidence whose applicability is missing or invalidated.
 - Lead with the end state and success evidence, not a procedure list.
 - Preserve user-provided ordering, tools, wording, quantitative targets, output formats, and stop rules unless they conflict.
 - Use decision rules where Codex can choose the path.

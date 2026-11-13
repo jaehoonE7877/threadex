@@ -24,7 +24,8 @@ validator is not a release dependency.
 `plugins/threadex/smoke/behavior_cases.json` contains realistic requests, raw
 fixtures, expected skill selection, and observable grading criteria. The cases
 cover all six skills, a no-skill control, stale evidence, summary-only persistence,
-and already-authorized review/verify/specify-to-implementation handoffs.
+already-authorized handoffs, selective delegation, settled decisions, and evidence
+reuse or invalidation after working-tree changes.
 
 Prepare each trial in a **new temporary directory outside the repository**:
 
@@ -34,9 +35,13 @@ python3 plugins/threadex/scripts/prepare_behavior_eval.py review_and_fix /tmp/th
 
 Give an independent agent only the resulting `request.md`. It includes the user
 request and all skill descriptions/paths, but not the expected answer or rubric.
-Each trial has separate workspace and skill copies. Do not give the agent this
-test guide or the source case file. Ask it to perform the task, not predict what
-the skill should do. Do not reuse a modified trial directory.
+Each trial has separate workspace, skill, and agent-contract copies. The request
+lists optional role contracts; it does not install or register them. When a trial
+needs delegation, use a fresh context that reads the matching copied contract and
+the bounded handoff. A preinstalled role may still contain old instructions, so
+its name alone does not prove that the candidate contract ran. Do not give the
+agent this test guide or the source case file. Ask it to perform the task, not
+predict what the skill should do. Do not reuse a modified trial directory.
 
 After it finishes, grade the actual response, tool activity, and file changes
 against every case check. Run the fixture tests independently for repair cases.
@@ -70,8 +75,27 @@ Delegation is conditional on task value, not required for every tiny trial. A
 reviewer/verifier stays read-only; the parent performs already-authorized repairs.
 
 For prompt regressions, compare the same case with the old and new skill on the
-same model/effort first. Change model settings separately if needed. Check correct
-selection, factual evidence, scope, completion, and unnecessary approval stops.
+same model/effort first. Keep the case inputs, trial preparation, tool availability,
+and grading criteria the same; vary the skill and agent instructions together.
+New cases can be copied into an isolated baseline package without changing its
+instructions. Change model settings separately if needed.
+
+Repeat affected cases in fresh trial directories for both variants. Report the
+number of runs, per-case verdicts, and success-to-failure or failure-to-success
+changes instead of relying on an aggregate score. Check correct selection,
+factual evidence, preserved decisions, scope, completion, and unnecessary approval
+stops. Record actual delegation and tool-call counts when observable. Report
+latency or token/cost comparisons only when the runtime exposes comparable
+measurements; waiting for a shared worker slot is not model execution latency.
+
+The `delegation_*`, `evidence_*`, `clarify_through_repair`, and
+`draft_only_risky_context` cases exercise the changed decisions. For delegated
+trials, inspect the handoff and the child's actual response, not just the parent's
+statement that a review happened. Check preserved values and authorization,
+independent inspection of the risky behavior, and any missing evidence. Reusing
+a saved report requires matching target, scope, and file state; an unchanged
+commit ID alone does not establish freshness. A saved-report PASS must not be
+reported as a newly executed test.
 
 Sources: [Build skills](https://learn.chatgpt.com/docs/build-skills),
 [current prompting guidance](https://developers.openai.com/blog/rethinking-skills-and-prompts-for-gpt-6-astra).

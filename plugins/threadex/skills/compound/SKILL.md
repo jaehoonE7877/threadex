@@ -34,7 +34,8 @@ When persistence is authorized, read [references/persistence-schema.md](referenc
 
 ## Tool Routing
 
-- Use `docs-researcher` when persistence or deduplication needs a bounded search for the ledger, AI index, related human docs, or project naming rules. If unavailable, use a suitable available role or inspect directly.
+- Inspect known learning stores and naming rules directly. Use `docs-researcher` when a substantial, separable persistence or deduplication search justifies the handoff cost.
+- For delegation or reuse of earlier evidence, follow [context and delegation](../verify/references/delegation.md). Preserve the run's target, evidence limits, and write authorization; a retrospective does not turn unverified claims into observations.
 - If a PR is explicitly part of the evidence and accessible, retrieve only the fields needed for the learning through an authoritative read tool.
 - Skip delegation for a conversational summary when persistence location and duplicate detection do not matter.
 

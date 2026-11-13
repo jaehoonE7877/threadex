@@ -309,6 +309,130 @@
         "Describes success evidence as future checks, not completed tests or an observed PASS.",
         "Returns a draft under 4000 characters without executing, querying services, or expanding authorization."
       ]
+    },
+    {
+      "id": "delegation_small_lookup",
+      "expected_skills": [
+        "clarify"
+      ],
+      "prompt": "$threadex:clarify 검색 결과 정렬 옵션을 추가하려고 해. 이미 정한 조건은 decisions.md 하나에 있어. 구현 전에 아직 내가 결정해야 할 사항이 남았는지 확인해줘. 지금 문서나 코드는 만들지 마.",
+      "files": {
+        "decisions.md": "# Confirmed search sorting\nOptions are newest and oldest. The initial value is newest. Selection applies immediately to the currently displayed results and persists on this device after relaunch. Changing sort keeps the search text unchanged. Empty results retain the selector and show the existing empty-state message. No server or cross-device persistence changes. Acceptance: both orders, persistence after relaunch, unchanged query, and empty results.\n"
+      },
+      "checks": [
+        "Reads the one supplied decision file and returns a sufficient handoff without reopening settled choices.",
+        "Handles this small, complete local lookup directly without spawning a subagent or loading unrelated workflow stages.",
+        "Leaves the fixture unchanged and creates no user artifacts."
+      ]
+    },
+    {
+      "id": "delegation_risky_review",
+      "expected_skills": [
+        "review"
+      ],
+      "prompt": "$threadex:review 환불 금액이 잔액에 중복 반영되지 않도록 하는 변경이야. requirements.md 기준으로 refund.py와 테스트를 리뷰하고 출시를 막을 문제가 있는지 알려줘. 검토만 하고 파일은 수정하지 마. 실제 결제 서비스는 사용하지 않는 로컬 예제야.",
+      "files": {
+        "requirements.md": "# Refund contract\nA successful refund credits the stored amount exactly once. Replaying the same payment ID must leave the balance unchanged and return False. A first successful refund returns True. Scope: sequential calls on this in-memory local store; concurrent execution and external APIs are out of scope.\n",
+        "refund.py": "def apply_refund(store, payment_id):\n    amount = store[\"payments\"][payment_id]\n    store[\"balance\"] += amount\n    if payment_id in store[\"refunded\"]:\n        return False\n    store[\"refunded\"].add(payment_id)\n    return True\n",
+        "tests/test_refund.py": "import unittest\nfrom refund import apply_refund\n\nclass RefundTests(unittest.TestCase):\n    def test_first_refund(self):\n        store = {\"balance\": 10, \"payments\": {\"p1\": 5}, \"refunded\": set()}\n        self.assertTrue(apply_refund(store, \"p1\"))\n        self.assertEqual(store[\"balance\"], 15)\n",
+        "README.md": "# Local refund fixture\nRun `python3 -m unittest discover -s tests -v`. No network or real payment state.\n"
+      },
+      "checks": [
+        "When delegation is available, obtains a fresh-context review using the supplied code-reviewer contract; if unavailable, explicitly reports that independent review is missing rather than claiming it occurred.",
+        "Finds that replaying a payment ID credits the balance again before the duplicate check; cites the source and explains the concrete money-state consequence.",
+        "Does not accept the first-refund test as coverage of replay, expand into out-of-scope concurrency work, or modify files or external state."
+      ]
+    },
+    {
+      "id": "delegation_settled_handoff",
+      "expected_skills": [
+        "clarify"
+      ],
+      "prompt": "$threadex:clarify 계정 삭제 기능을 구현하기 전에 결정 사항과 API 계약을 확인해줘. decisions.md의 값은 사용자와 이미 확정했어. 남아 있는 중대한 모호함이 없다면 구현으로 넘길 수 있는지 알려줘. 지금은 확인만 하고 문서나 코드는 만들지 마.",
+      "files": {
+        "decisions.md": "# User-approved decisions\nDeletion enters a 30-day recovery period; the account is inaccessible during that period. Require reauthentication issued within the last 10 minutes before submitting deletion. Canceling the confirmation does nothing. A failed deletion request leaves the account signed in and shows an error. On success clear local credentials and show the signed-out screen. Recovery and permanent deletion are server-owned and outside this UI change. These product values are already settled.\n",
+        "api-contract.md": "# Confirmed API contract v3\nPOST /account/delete accepts the current user credential and a reauthentication token. The server verifies the token age and account ownership before scheduling deletion. HTTP 200 confirms scheduling; any non-200 response has no deletion side effect. The client clears credentials only after HTTP 200. Duplicate requests are idempotent on the server. Acceptance checks: confirmation cancel; missing/expired reauth; success; server rejection; network failure with no local credential clearing.\n"
+      },
+      "checks": [
+        "Preserves the settled 30-day, 10-minute, success/failure, and server/client scope decisions; does not ask the user to decide them again.",
+        "For an independent audit, passes the settled decisions, API contract v3, read-only boundary, and specific handoff question rather than a role name alone; if no independent context is available, reports that limitation.",
+        "Returns a supported sufficient handoff or a concrete remaining gap without inventing requirements or writing artifacts."
+      ]
+    },
+    {
+      "id": "evidence_reuse_same_target",
+      "expected_skills": [
+        "verify"
+      ],
+      "prompt": "$threadex:verify requirements.md의 로컬 함수 동작이 현재 상태에서 완료됐는지 확인해줘. local-test-report.json은 직전 단계에서 저장한 실행 결과이고, 당시 파일 해시도 들어 있어. 범위는 이 함수뿐이야. 파일은 수정하지 마.",
+      "files": {
+        "README.md": "# Checkout\nPython standard library only. Run `python3 -m unittest discover -s tests -v`.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout allows balance >= cost and rejects lower balances.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance >= cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "local-test-report.json": "{\n  \"fixture\": \"Synthetic saved local report; not a fresh execution by the evaluator.\",\n  \"revision\": \"revision-b\",\n  \"environment\": \"local\",\n  \"command\": \"python3 -m unittest discover -s tests -v\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\",\n    \"test_exact_cost\"\n  ],\n  \"sha256\": {\n    \"checkout.py\": \"0f11e3b8f1be3362d77b296d149d46ba692e9433bbca725b3047858628967039\",\n    \"tests/test_checkout.py\": \"55db09ba04f418609b3e67ec270c2838c884c206ea9e32c28afc5b37615aeaa7\",\n    \"requirements.md\": \"fc9b949b0a360c63476643c56f7ab9f2b9d484c20cf4c5969335db88082e0025\"\n  }\n}\n"
+      },
+      "checks": [
+        "Checks the report target, covered behavior, and matching file fingerprints before reusing it as evidence for the current local scope.",
+        "Reuses valid evidence without spawning a verifier or rerunning the same suite absent a concrete freshness, coverage, or correctness concern.",
+        "Returns a requirement-scoped PASS and labels the test report as a prior saved result, not a newly executed suite or evidence of CI/live behavior; preserves fixtures."
+      ]
+    },
+    {
+      "id": "evidence_recheck_changed_target",
+      "expected_skills": [
+        "verify"
+      ],
+      "prompt": "$threadex:verify requirements.md를 현재 코드가 만족하는지 확인해줘. local-test-report.json은 앞 단계의 성공 결과야. 커밋은 그대로지만 이후 작업 트리에 변경이 있어 working-tree.diff에 남겼어. 수정 없이 검증만 해줘.",
+      "files": {
+        "README.md": "# Checkout\nPython standard library only. Run `python3 -m unittest discover -s tests -v`.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout allows balance >= cost and rejects lower balances.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n",
+        "local-test-report.json": "{\n  \"fixture\": \"Synthetic saved local report; not a fresh execution by the evaluator.\",\n  \"revision\": \"revision-b\",\n  \"environment\": \"local\",\n  \"command\": \"python3 -m unittest discover -s tests -v\",\n  \"result\": \"passed\",\n  \"tests\": [\n    \"test_more_than_cost\",\n    \"test_less_than_cost\",\n    \"test_exact_cost\"\n  ],\n  \"sha256\": {\n    \"checkout.py\": \"0f11e3b8f1be3362d77b296d149d46ba692e9433bbca725b3047858628967039\",\n    \"tests/test_checkout.py\": \"55db09ba04f418609b3e67ec270c2838c884c206ea9e32c28afc5b37615aeaa7\",\n    \"requirements.md\": \"fc9b949b0a360c63476643c56f7ab9f2b9d484c20cf4c5969335db88082e0025\"\n  }\n}\n",
+        "working-tree.diff": "--- a/checkout.py\n+++ b/checkout.py\n@@ -1,2 +1,2 @@\n def can_checkout(balance, cost):\n-    return balance >= cost\n+    return balance > cost\n"
+      },
+      "checks": [
+        "Detects that unchanged revision-b does not make the old passing result current: checkout.py differs from its recorded fingerprint and diff.",
+        "Rechecks the affected equality path using current source or an actual focused test and returns FAIL with concrete evidence.",
+        "Keeps the greater/lower requirements mapped to applicable evidence, does not rerun unrelated workflows or treat the saved report as a current pass, and leaves files unchanged."
+      ]
+    },
+    {
+      "id": "clarify_through_repair",
+      "expected_skills": [
+        "clarify"
+      ],
+      "prompt": "$threadex:clarify requirements.md의 조건에서 정말 빠진 결정이 있는지 확인하고, 충분하면 checkout.py 수정과 관련 테스트까지 이어서 끝내줘. 이 임시 프로젝트 안의 구현과 테스트는 승인했어. 별도 요구사항 파일이나 /goal 초안은 필요 없어.",
+      "files": {
+        "README.md": "# Checkout\nPython standard library only. Run `python3 -m unittest discover -s tests -v`.\n",
+        "requirements.md": "# Checkout requirements\nFor non-negative integer balances and costs, checkout allows balance >= cost and rejects lower balances.\n",
+        "checkout.py": "def can_checkout(balance, cost):\n    return balance > cost\n",
+        "tests/test_checkout.py": "import unittest\nfrom checkout import can_checkout\n\nclass CheckoutTests(unittest.TestCase):\n    def test_more_than_cost(self):\n        self.assertTrue(can_checkout(11, 10))\n\n    def test_less_than_cost(self):\n        self.assertFalse(can_checkout(9, 10))\n\n    def test_exact_cost(self):\n        self.assertTrue(can_checkout(10, 10))\n",
+        "current_revision.txt": "revision-b\n"
+      },
+      "checks": [
+        "Uses the documented equality requirement without redundant questions and carries the authorized scope into implementation in the same run.",
+        "Repairs checkout.py so greater/equal/lower behavior passes the original test suite, without weakening requirements or tests.",
+        "Does not stop at a clarification handoff, ask duplicate implementation approval, create a requirements file or goal, or require delegation for this small local repair."
+      ]
+    },
+    {
+      "id": "draft_only_risky_context",
+      "expected_skills": [
+        "goal-draft"
+      ],
+      "prompt": "$threadex:goal-draft approved-contract.md의 결제 환불 작업을 수행할 /goal 프롬프트만 작성해줘. 지금은 실행하거나 파일을 수정하지 마. 필요한 범위와 성공 기준은 모두 계약에 있어.",
+      "files": {
+        "approved-contract.md": "# Approved refund implementation contract\nOutcome: fix duplicate refund credits in refund.py.\nSuccess evidence to obtain: run `python3 -m unittest discover -s tests -v` for first refund and sequential replay; require an independent review of the money-state mutation before completion. No test or review has run yet.\nPreserve: first refund credits the payment amount and returns True; replay changes nothing and returns False. Concurrent calls and server APIs are outside this change.\nAuthorized future scope: local refund.py and tests only, no external writes or deployment.\nWork policy: preserve the contract, repair within scope, and recheck affected evidence after changes.\nIf blocked: report the missing evidence or access; do not mark complete.\n"
+      },
+      "checks": [
+        "Returns only an evidence-checkable /goal draft within 4000 characters, preserving local scope, exact outcomes, and future independent review requirement.",
+        "Does not run implementation, tests, a review subagent, or a goal merely because the future task concerns payments.",
+        "Keeps planned evidence separate from observed success and leaves the fixture unchanged without new artifacts."
+      ]
     }
   ]
 }
