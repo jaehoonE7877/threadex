@@ -1,7 +1,8 @@
 # Context-aware delegation evaluation
 
 Evaluated on 2026-11-13 against local base `92eb71f` (Threadex 0.6.0).
-This is an unreleased source change, not an installed-plugin or marketplace test.
+This report covers pre-release source evaluation, not installed-plugin or
+marketplace tests.
 
 ## Scope
 
@@ -90,9 +91,10 @@ passed the case's fallback/evidence criteria; it is not evidence of a successful
 independent verification. Subsequent delegated comparisons reserved worker capacity.
 
 No live provider, production state, native plugin discovery, agent installation,
-marketplace publication, or remote CI was exercised. The manifest remains 0.6.0
-until a separate release. No comparable token, cost, or latency measurements were
-captured, and the behavior results do not establish a performance improvement.
+marketplace publication, or remote CI was exercised in this evaluation. At that
+time, the manifest was 0.6.0 pending a separate release. No comparable token, cost,
+or latency measurements were captured, and the behavior results do not establish
+a performance improvement.
 
 Instruction SHA-256 uses sorted paths under `skills/**/*.md` and
 `codex/agents/*.toml`, followed by NUL and file bytes:
