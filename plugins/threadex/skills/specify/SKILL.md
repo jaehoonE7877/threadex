@@ -27,8 +27,9 @@ Return to `clarify` when one material user decision still changes the requiremen
 ## Tool Routing
 
 - When the task names external sources or needs material evidence outside the repo, read [connected evidence](../verify/references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
-- Use `code-explorer` and `docs-researcher` for bounded project evidence when delegation adds value; parallelize independent reads. If a named agent is unavailable, use a suitable available role or inspect directly.
-- Use `gap-auditor` when risk is medium or higher, especially for auth, payments, privacy, destructive actions, migrations, public APIs, cross-platform UI, releases, or multi-module changes.
+- Reuse the clarified decisions and applicable evidence in the main context. Handle small known-file lookups directly; use `code-explorer` or `docs-researcher` when independent research or source volume justifies the handoff cost.
+- Require an independent `gap-auditor` check when consequential decisions, complex interacting requirements, or uncertain critical evidence threaten the contract. Judge actual impact and uncertainty rather than domain names or file counts alone.
+- For delegation, independent checks, or reused handoff evidence, follow [context and delegation](../verify/references/delegation.md), including role fallback and the limits of self-review.
 - Open `.threadex/learnings/ledger.json` or a linked `human_doc` only when the compact index rule is ambiguous, disputed, or insufficient.
 
 ## Decision Rules

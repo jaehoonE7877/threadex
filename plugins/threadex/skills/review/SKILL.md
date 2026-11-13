@@ -26,7 +26,8 @@ Use `verify` when the primary question is whether requirements are complete. For
 
 - When the task names external sources or needs material evidence outside the repo, read [connected evidence](../verify/references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
 - Read the review surface before drawing conclusions.
-- Use `code-reviewer` for non-trivial changes, cross-module contracts, release behavior, or meaningful test risk. Skip delegation when a direct review is sufficient for a tiny mechanical or docs-only change. If unavailable, use a suitable available role or review directly.
+- Review small, low-impact, well-evidenced changes directly. Require an independent `code-reviewer` for materially risky changes, complex interacting contracts, or uncertain critical evidence. Changes that can duplicate monetary effects, bypass authorization, or destroy user data require this check even in a short local reproduction. Finding an obvious blocker does not fulfill the independent review.
+- For delegation, independent checks, or reuse of earlier findings, follow [context and delegation](../verify/references/delegation.md). Give the reviewer the settled requirements and raw review surface without steering its conclusion. Preserve role fallback and disclose any missing independent check.
 
 ## Severity
 
@@ -55,6 +56,7 @@ Each finding must cite a file, line, or diff hunk and explain the user-visible o
 
 - Keep the review stage and delegated reviewer read-only. A review-only request never authorizes fixes; a review-and-fix request authorizes the parent to implement scoped fixes after establishing findings.
 - Do not approve from green tests alone; inspect whether they cover the changed behavior.
+- Reuse applicable prior findings and checks. After fixes, recheck affected behavior and retain unaffected evidence only when it still applies; a second review/verify stage does not require repeating the whole inspection.
 - Do not report preferences as findings unless they create material correctness, product, security, or maintainability risk.
 
 ## Stop Conditions

@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import shutil
+import tomllib
 from pathlib import Path, PurePosixPath
 
 
@@ -71,12 +72,26 @@ def prepare(root: Path, case_id: str, output: Path) -> Path:
                            path.read_text(encoding="utf-8").splitlines()
                            if line.startswith("description:"))
         catalog.append(f"- $threadex:{path.parent.name}: {description} ({path})")
+    agents = output / "agents"
+    shutil.copytree(root / "codex/agents", agents)
+    agent_catalog = []
+    for path in sorted(agents.glob("*.toml")):
+        contract = tomllib.loads(path.read_text(encoding="utf-8"))
+        agent_catalog.append(f"- {contract['name']}: {contract['description']} ({path})")
     request = (
         f"Work only in {workspace}. Treat this as a real user task. "
         "Use the supplied skill catalog when a skill applies, reading its SKILL.md. "
+        "The copied skills and agent contracts may be read but not modified. "
         "Do not inspect other trials or the source plugin's smoke cases. "
         "Do not use external services. Return the actual task result.\n\n"
-        "Available skills:\n" + "\n".join(catalog) + "\n\nUser request:\n" + case["prompt"] + "\n"
+        "Available skills:\n" + "\n".join(catalog) + "\n\n"
+        "Optional agent contracts:\n" + "\n".join(agent_catalog) + "\n\n"
+        "These files do not install or register custom roles. When delegation is warranted "
+        "and available, give a fresh-context agent the matching copied contract and a bounded "
+        "task within this workspace. The child must read and follow that contract. "
+        "Do not assume a preinstalled role uses this copy. If delegation is unavailable, "
+        "follow the skill's fallback and disclose the limitation.\n\n"
+        "User request:\n" + case["prompt"] + "\n"
     )
     (output / "request.md").write_text(request, encoding="utf-8")
     return output / "request.md"

@@ -25,8 +25,9 @@ Use `review` for defect discovery without a completion claim. Use `specify` to c
 ## Tool Routing
 
 - When the task names external sources or needs material evidence outside the repo, read [connected evidence](references/connected_evidence.md). Use existing MCP/plugin read tools and preserve source identity, target revision, and evidence gaps. Skip discovery when local evidence is sufficient.
-- Inspect direct evidence locally when the claim is small and bounded.
-- Use `verifier` for non-trivial, release, multi-file, or high-cost claims. Pass the claim, requirements, evidence paths or commands, and allowed boundary. If unavailable, use a suitable available role or verify directly.
+- Inspect direct evidence locally when the claim is small, bounded, and low-impact. Reuse supported findings and checks whose target and coverage still apply.
+- Require an independent `verifier` for materially risky completion claims, complex interacting requirements, or uncertain critical evidence. A file count or release label alone does not determine the need.
+- For delegation, independent checks, or evidence reuse, follow [context and delegation](references/delegation.md), including role fallback and the limits of self-review. Pass the claim, settled requirements, target, raw evidence, and allowed boundary. Do not rerun an independent check already covered by current evidence.
 
 ## Verdict Rules
 
@@ -62,6 +63,7 @@ Lead with the verdict. Include exact commands, paths, lines, screenshots, or art
 - Verification-only requests and delegated verifiers stay read-only and do not fix code or mutate external state. In verify-and-fix requests, the parent may implement the already-authorized fixes after establishing the verdict.
 - Green tests are evidence only for behavior they actually cover.
 - Output from another branch, commit, or earlier run is stale unless current state proves it still applies.
+- A delegated verdict proves only the assigned scope. The main agent remains responsible for unresolved requirements, conflicting evidence, and verification of authorized fixes.
 
 ## Stop Conditions
 

@@ -258,6 +258,7 @@ def main() -> None:
 
     for support_file in [
         root / "skills" / "verify" / "references" / "connected_evidence.md",
+        root / "skills" / "verify" / "references" / "delegation.md",
         root / "skills" / "compound" / "references" / "problem-types.md",
         root / "skills" / "compound" / "references" / "persistence-schema.md",
         root / "skills" / "compound" / "templates" / "LEARNING_TEMPLATE.md",

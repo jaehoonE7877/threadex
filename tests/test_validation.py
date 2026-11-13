@@ -71,6 +71,10 @@ class ValidationTests(unittest.TestCase):
         (self.root / "skills/verify/references/connected_evidence.md").unlink()
         self.assertNotEqual(self.validate().returncode, 0)
 
+    def test_missing_delegation_reference_is_rejected(self):
+        (self.root / "skills/verify/references/delegation.md").unlink()
+        self.assertNotEqual(self.validate().returncode, 0)
+
     def test_trial_skill_references_resolve(self):
         request = prepare(self.root, "connected_access_denied", self.base / "trial")
         skills = (request.parent / "skills").resolve()
@@ -101,8 +105,21 @@ class ValidationTests(unittest.TestCase):
         for check in case["checks"]:
             self.assertNotIn(check, text)
         self.assertFalse((request.parent / "smoke").exists())
+        self.assertFalse((request.parent / "agents/smoke").exists())
         for name, content in case["files"].items():
             self.assertEqual((request.parent / "workspace" / name).read_text(), content)
+
+    def test_trial_copies_agent_contracts_without_installing_them(self):
+        request = prepare(self.root, "review_only", self.base / "trial")
+        originals = {path.name: path.read_bytes()
+                     for path in (self.root / "codex/agents").glob("*.toml")}
+        copies = {path.name: path.read_bytes()
+                  for path in (request.parent / "agents").glob("*.toml")}
+        self.assertEqual(copies, originals)
+        for name in originals:
+            self.assertIn(str(request.parent / "agents" / name), request.read_text())
+        self.assertFalse((request.parent / "workspace/.codex").exists())
+        self.assertFalse((request.parent / "workspace/.agents").exists())
 
     def test_existing_trial_is_never_overwritten(self):
         output = self.base / "trial"
@@ -120,6 +137,10 @@ class ValidationTests(unittest.TestCase):
         (first / "workspace/checkout.py").write_text("changed\n")
         self.assertNotEqual((first / "workspace/checkout.py").read_text(),
                             (second / "workspace/checkout.py").read_text())
+        original_contract = (self.root / "codex/agents/verifier.toml").read_bytes()
+        (first / "agents/verifier.toml").write_text("changed\n")
+        self.assertEqual((second / "agents/verifier.toml").read_bytes(), original_contract)
+        self.assertEqual((self.root / "codex/agents/verifier.toml").read_bytes(), original_contract)
 
     def test_fixture_paths_cannot_escape_workspace(self):
         path = self.root / "smoke/behavior_cases.json"
